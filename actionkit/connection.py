@@ -17,6 +17,11 @@ class Connection:
         self.session = requests.Session()
         self.session.auth = (username, password)
 
+    def get(self, path: str, **kwargs) -> dict:
+        response = self.session.get(self._path(path), params=kwargs)
+        response.raise_for_status()
+        return response.json()
+
     def post(self, path: str, json: dict, **kwargs) -> str:
         """
         Issue a POST request with JSON and other params.
@@ -26,10 +31,10 @@ class Connection:
         response.raise_for_status()
         return response.headers["Location"]
 
-    def get(self, path: str, **kwargs) -> dict:
-        response = self.session.get(self._path(path), params=kwargs)
+    def patch(self, path: str, json: dict) -> bool:
+        response = self.session.patch(self._path(path), json=json)
         response.raise_for_status()
-        return response.json()
+        return True
 
     def delete(self, path: str) -> bool:
         response = self.session.delete(self._path(path))
