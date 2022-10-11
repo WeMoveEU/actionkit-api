@@ -4,6 +4,7 @@ from .orders import Orders
 from .donations import DonationPush
 from .languages import Languages
 from .lists import Lists
+from .uploads import Uploads
 from .users import Users
 
 
@@ -32,4 +33,5 @@ class ActionKit:
         self.DonationPush = DonationPush(self.connection)
         self.Languages = Languages(self.connection)
         self.Lists = Lists(self.connection)
+        self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
