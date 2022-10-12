@@ -1,9 +1,10 @@
 import os
 from .connection import Connection
-from .orders import Orders
 from .donations import DonationPush
+from .groups import Groups
 from .languages import Languages
 from .lists import Lists
+from .orders import Orders
 from .uploads import Uploads
 from .users import Users
 
@@ -31,6 +32,7 @@ class ActionKit:
 
         self.Orders = Orders(self.connection)
         self.DonationPush = DonationPush(self.connection)
+        self.Groups = Groups(self.connection)
         self.Languages = Languages(self.connection)
         self.Lists = Lists(self.connection)
         self.Uploads = Uploads(self.connection)
