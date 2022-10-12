@@ -23,3 +23,7 @@ class Lists:
             return response.json()
 
         return lists["objects"][0]
+
+    def all(self):
+        return self.connection.get("list/")["objects"]
+
