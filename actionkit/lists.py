@@ -6,24 +6,13 @@ class Lists:
         """Find or create a list."""
         connection = self.connection
 
-        response = connection.session.get(f"list/?name={list_name}")
-
-        response.raise_for_status()
-        lists = response.json()
+        lists = connection.get(f"list/?name={list_name}")
 
         if lists["meta"]["total_count"] == 0:
-            # create the list
-            response = connection.post("list/", {"name": list_name})
-            response.raise_for_status()
-
-            # ok, load the new list
-            response = connection.session.get(response.headers["Location"])
-            response.raise_for_status()
-
-            return response.json()
+            # sigh, terrible design. second request to get the object we just created. bad past aaron.
+            return connection.get(connection.post("list/", {"name": list_name}))
 
         return lists["objects"][0]
 
     def all(self):
         return self.connection.get("list/")["objects"]
-
