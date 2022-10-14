@@ -2,16 +2,15 @@ from typing import List
 
 from requests import HTTPError
 
-BASE_PATH = "order/"
-
 
 class Orders:
     def __init__(self, connection):
         self.connection = connection
+        self.base_path = "order/"
 
     def search(self, **params: dict) -> List[dict]:
         try:
-            orders = self.connection.get(BASE_PATH, **params)
+            orders = self.connection.get(self.base_path, **params)
 
             to_return = orders["objects"]
             while orders["meta"]["next"]:
@@ -36,3 +35,6 @@ class Orders:
                     f"Bad request for Orders.delete(): {e.response.text}: {e}"
                 )
             raise
+
+    def get(self, **params):
+        return self.connection.get(self.base_path, **params)

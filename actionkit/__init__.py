@@ -5,6 +5,7 @@ from .groups import Groups
 from .languages import Languages
 from .lists import Lists
 from .orders import Orders
+from .orderrecurring import OrderRecurring
 from .uploads import Uploads
 from .users import Users
 
@@ -31,6 +32,7 @@ class ActionKit:
         self.connection = connect(*args, **kwargs)
 
         self.Orders = Orders(self.connection)
+        self.OrderRecurring = OrderRecurring(self.connection)
         self.DonationPush = DonationPush(self.connection)
         self.Groups = Groups(self.connection)
         self.Languages = Languages(self.connection)

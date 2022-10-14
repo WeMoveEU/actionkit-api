@@ -23,3 +23,12 @@ class DonationPush:
                 raise Exception(f"DonationPush failed: {e.response.text}: {e}")
 
             raise
+
+    def cancel_recurring_profile(self, recurring_id, canceled_by):
+        return self.connection.post(
+            "profilecancelpush/",
+            {"recurring_id": recurring_id, "canceled_by": canceled_by},
+        )
+
+    def add_recurring_payment(self, payment):
+        return self.connection.post("recurringpaymentpush/", payment)
