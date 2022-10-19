@@ -8,6 +8,7 @@ from .orders import Orders
 from .orderrecurring import OrderRecurring
 from .uploads import Uploads
 from .users import Users
+from .petitions import Petitions
 
 
 def connect(hostname=None, username=None, password=None, **kwargs):
@@ -39,3 +40,4 @@ class ActionKit:
         self.Lists = Lists(self.connection)
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
+        self.Petitions = Petitions(self.connection)
