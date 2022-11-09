@@ -1,6 +1,7 @@
 import os
 from .connection import Connection
 from .donations import DonationPush
+from .donationaction import DonationAction
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
@@ -34,6 +35,7 @@ class ActionKit:
 
         self.Orders = Orders(self.connection)
         self.OrderRecurring = OrderRecurring(self.connection)
+        self.DonationAction = DonationAction(self.connection)
         self.DonationPush = DonationPush(self.connection)
         self.Groups = Groups(self.connection)
         self.Languages = Languages(self.connection)

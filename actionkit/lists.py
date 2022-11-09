@@ -1,4 +1,7 @@
-class Lists:
+from .httpmethods import HttpMethods
+
+
+class Lists(HttpMethods):
     def __init__(self, connection):
         self.connection = connection
 

@@ -1,7 +1,7 @@
-from .orders import Orders
+from .httpmethods import HttpMethods
 
 
-class OrderRecurring(Orders):
+class OrderRecurring(HttpMethods):
     def __init__(self, connection):
-        super().__init__(connection)
+        self.connection = connection
         self.base_path = "orderrecurring/"

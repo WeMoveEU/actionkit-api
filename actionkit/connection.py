@@ -36,6 +36,11 @@ class Connection:
         response.raise_for_status()
         return True
 
+    def put(self, path: str, json: dict) -> bool:
+        response = self.session.put(self._path(path), json=json)
+        response.raise_for_status()
+        return True
+
     def delete(self, path: str) -> bool:
         response = self.session.delete(self._path(path))
         response.raise_for_status()

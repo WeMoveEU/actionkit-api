@@ -1,10 +1,13 @@
-class Groups:
+from .httpmethods import HttpMethods
+
+
+class Groups(HttpMethods):
     def __init__(self, connection):
         self.connection = connection
 
     def uris(self):
         groups = self.connection.get("usergroup/")
-        return dict(map(lambda g: (g['name'], g['resource_uri']), groups["objects"]))
+        return dict(map(lambda g: (g["name"], g["resource_uri"]), groups["objects"]))
 
     def create(self, group):
         return self.connection.post("usergroup/", group)

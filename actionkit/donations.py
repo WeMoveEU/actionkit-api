@@ -1,18 +1,17 @@
-import json
 import sys
 
 from requests import HTTPError
+from .httpmethods import HttpMethods
 
-DONATION_PUSH_PATH = "donationpush/"
 
-
-class DonationPush:
+class DonationPush(HttpMethods):
     def __init__(self, connection):
         self.connection = connection
+        self.base_path = "donationpush/"
 
     def push(self, donation):
         try:
-            return self.connection.post(DONATION_PUSH_PATH, donation)
+            return self.connection.post("donationpush/", donation)
         except HTTPError as e:
             if e.response.status_code == 409:
                 sys.stderr.write(

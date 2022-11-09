@@ -1,4 +1,7 @@
-class Users:
+from .httpmethods import HttpMethods
+
+
+class Users(HttpMethods):
     def __init__(self, connection):
         self.connection = connection
 
