@@ -7,7 +7,8 @@ class Languages(HttpMethods):
 
     def by_code(self):
         langs = self.connection.get("language/")
-        return dict(map(lambda l: (l["iso_code"], l), langs["objects"]))
+        # Robotic dogs has 2 languages with same code...
+        return {l["iso_code"]: l for l in langs["objects"] if l["name"] != "Disco"}
 
     def uris(self):
         langs = self.connection.get("language/")
