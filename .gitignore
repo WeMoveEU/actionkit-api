@@ -1,5 +1,7 @@
 __pycache__
 .python-version
+.pypirc
 .vscode/
 actionkit.egg-info/
 build/
+dist/
