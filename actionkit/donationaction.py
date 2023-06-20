@@ -1,6 +1,7 @@
 from typing import List
 
 from requests import HTTPError
+
 from .httpmethods import HttpMethods
 
 

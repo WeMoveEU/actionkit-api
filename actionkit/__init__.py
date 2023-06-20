@@ -1,15 +1,17 @@
+import logging
 import os
+
 from .connection import Connection
-from .donations import DonationPush
 from .donationaction import DonationAction
+from .donations import DonationPush
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
-from .orders import Orders
 from .orderrecurring import OrderRecurring
+from .orders import Orders
+from .petitions import Petitions
 from .uploads import Uploads
 from .users import Users
-from .petitions import Petitions
 
 
 def connect(hostname=None, username=None, password=None, **kwargs):
@@ -26,7 +28,12 @@ def connect(hostname=None, username=None, password=None, **kwargs):
             " set ENV ACTIONKIT_USERNAME, ACTIONKIT_PASSWORD, ACTIONKIT_HOSTNAME "
             "or pass parameters to connect()"
         )
-    return Connection(hostname, username, password)
+    return Connection(
+        hostname,
+        username,
+        password,
+        logger=kwargs.get('logger', logging.getLogger(__name__)),
+    )
 
 
 class ActionKit:
