@@ -16,10 +16,10 @@ class Connection:
     retry_codes = [requests.codes.internal_server_error]
     # In the case of a response being one of the retry_codes this is how many times we try the
     # request again
-    num_retries = 5
+    num_retries = 3
     # The initial_backoff value is the number of seconds we wait before a retry.
     # This number doubles every time
-    initial_backoff = 2  # seconds
+    initial_backoff = 3  # seconds
 
     def __init__(
         self,
@@ -38,13 +38,6 @@ class Connection:
             'auth': requests.auth.HTTPBasicAuth(username, password),
         }
         self.logger = logger
-
-    def _get_ak_resource_uri(self, response):
-        """
-        This method takes the response from ActionKit after a resource has been successfully
-        created. It will get the resource_uri from the response headers and return it.
-        """
-        return response.headers.get('Location', None)
 
     def _make_request(self, http_method: str, path: str, data=None, **kwargs):
         """
@@ -97,7 +90,7 @@ class Connection:
                     self.logger.error(e.message)
                 raise
 
-        return response, self._get_ak_resource_uri(response)
+        return response
 
     def get(self, path: str, **kwargs) -> dict:
         return self._make_request('get', path, **kwargs)
