@@ -8,7 +8,6 @@ import requests
 class Connection:
     """
     Provide simple, but useful methods for creating and using an HTTPS session with the ActionKit API.
-
     """
 
     # retry_codes are the HTTP error codes that this service will attempt retries on
@@ -44,7 +43,7 @@ class Connection:
         Make the request to the ActionKit API with the desired method
         """
         _http_method = http_method.lower()
-        request_fn = getattr(requests, _http_method.lower(), None)
+        request_fn = getattr(requests, _http_method, None)
         if request_fn is None:
             raise NotImplementedError(
                 'HTTP method {} not supported'.format(_http_method)
