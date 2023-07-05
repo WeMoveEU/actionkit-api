@@ -51,3 +51,24 @@ class ActionKit:
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
         self.Petitions = Petitions(self.connection)
+
+    @staticmethod
+    def get_resource_uri(self, response):
+        """
+        Provides access to the underlying Connection class's get_resource_uri method
+        """
+        return Connection.get_resource_uri(response)
+
+    @staticmethod
+    def get_resource_uri_id(resource_uri):
+        """
+        Provides access to the underlying Connection class's get_resource_uri_id method
+        """
+        return Connection.get_resource_uri_id(resource_uri)
+
+    @staticmethod
+    def get_resource_uri_id_from_response(response):
+        """
+        Provides access to the underlying Connection class's get_resource_uri_id_from_response method
+        """
+        return Connection.get_resource_uri_id_from_response(response)
