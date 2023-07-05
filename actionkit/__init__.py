@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 
 from .connection import Connection
 from .donationaction import DonationAction
