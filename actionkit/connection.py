@@ -4,6 +4,8 @@ import time
 
 import requests
 
+resource_uri_id_regex = re.compile(r'/(?P<id>\d+)/$')
+
 
 class Connection:
     """
@@ -37,6 +39,35 @@ class Connection:
             'auth': requests.auth.HTTPBasicAuth(username, password),
         }
         self.logger = logger
+
+    @staticmethod
+    def get_resource_uri(response):
+        """
+        This method takes the response from ActionKit after a resource has been successfully
+        created. It will get the resource_uri from the response headers, if present and return it.
+        """
+        return response.headers.get('Location', None)
+
+    @staticmethod
+    def get_resource_uri_id(resource_uri):
+        """
+        This method takes a resource_uri and returns the id of the resource.
+        """
+        match = resource_uri_id_regex.search(resource_uri)
+        if match:
+            return match.group('id')
+        return None
+
+    @staticmethod
+    def get_resource_uri_id_from_response(response):
+        """
+        This method takes the response from ActionKit after a resource has been successfully
+        created. It will get the resource_uri from the response headers, if present and return the id.
+        """
+        resource_uri = Connection.get_resource_uri(response)
+        if resource_uri:
+            return Connection.get_resource_uri_id(resource_uri)
+        return None
 
     def _make_request(self, http_method: str, path: str, data=None, **kwargs):
         """
@@ -91,6 +122,18 @@ class Connection:
 
         return response
 
+    def _path(self, path: str) -> str:
+        "Handle common cases of path inputs - try to be friendly without getting fancy."
+        if path.startswith("http"):
+            return path
+
+        # already an API path
+        if path.startswith("/rest/v1"):
+            return f"https://{self.hostname}{path}"
+
+        # prepend API path. remove // in case the provided path has a / at the beginning
+        return f"https://{self.hostname}" + f"/rest/v1/{path}".replace("//", "/")
+
     def get(self, path: str, **kwargs) -> dict:
         return self._make_request('get', path, **kwargs)
 
@@ -108,15 +151,3 @@ class Connection:
 
     def delete(self, path: str) -> bool:
         return self._make_request('delete', path)
-
-    def _path(self, path: str) -> str:
-        "Handle common cases of path inputs - try to be friendly without getting fancy."
-        if path.startswith("http"):
-            return path
-
-        # already an API path
-        if path.startswith("/rest/v1"):
-            return f"https://{self.hostname}{path}"
-
-        # prepend API path. remove // in case the provided path has a / at the beginning
-        return f"https://{self.hostname}" + f"/rest/v1/{path}".replace("//", "/")
