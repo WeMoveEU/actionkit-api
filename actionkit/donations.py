@@ -164,3 +164,13 @@ class DonationPush(HttpMethods):
 
     def add_recurring_payment(self, payment):
         return self.connection.post("recurringpaymentpush/", payment)
+
+    def delete_donationaction(self, donationaction_uri: str):
+        try:
+            self.connection.delete(donationaction_uri)
+        except HTTPError as e:
+            if e.response.status_code == 400:
+                raise Exception(
+                    f'Failed to delete donationaction "{donationaction_uri}":\n{e.response.text}: {e}'
+                )
+        return donationaction_uri
