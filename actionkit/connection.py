@@ -103,8 +103,12 @@ class Connection:
             try:
                 response = request_fn(url, **request_kwargs)
                 self.logger.debug(
-                    f'Request headers: {pprint.pformat(response.request.headers)}'
+                    f'ActionKit Request headers:\n{pprint.pformat(response.request.headers)}'
                 )
+                if response.content:
+                    self.logger.debug(
+                        f'ActionKit Response body:\n{pprint.pformat(response.json())}'
+                    )
                 response.raise_for_status()
                 break
             except requests.exceptions.HTTPError as e:
