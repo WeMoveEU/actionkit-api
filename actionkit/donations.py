@@ -182,5 +182,5 @@ class DonationPush(HttpMethods):
                 self.connection.logger.info(
                     f'Donationaction {donationaction_uri} not found. Skipping delete.\n'
                 )
-                return
-        return donationaction_uri
+                return False
+        return True
