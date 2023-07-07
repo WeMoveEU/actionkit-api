@@ -167,10 +167,20 @@ class DonationPush(HttpMethods):
 
     def delete_donationaction(self, donationaction_uri: str):
         try:
-            self.connection.delete(donationaction_uri)
+            # Check to see if the donationaction exists
+            response = self.connection.get(donationaction_uri)
+            data = response.json()
+            # Only delete if the donationaction is incomplete
+            if data['status'] == 'incomplete':
+                self.connection.delete(donationaction_uri)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
                     f'Failed to delete donationaction "{donationaction_uri}":\n{e.response.text}: {e}'
                 )
+            elif e.response.status_code == 404:
+                self.connection.logger.info(
+                    f'Donationaction {donationaction_uri} not found. Skipping delete.\n'
+                )
+                return
         return donationaction_uri
