@@ -88,7 +88,7 @@ class DonationPush(HttpMethods):
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
-                    f'Creation of incomplete donation failure:\n{e.response.text}: {e}'
+                    f'Failed to set donationaction status "{status}":\n{e.response.text}: {e}'
                 )
             raise
         return donationaction_data['resource_uri']
