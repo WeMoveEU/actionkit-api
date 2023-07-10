@@ -70,6 +70,14 @@ class Connection:
             return Connection.get_resource_uri_id(resource_uri)
         return None
 
+    @staticmethod
+    def get_resource_uri_from_id(resource_id, resource_name):
+        """
+        This method takes an ActionKit resource_id and returns the resource_uri, based on the
+        resource_name.
+        """
+        return f'/rest/v1/{resource_name}/{resource_id}/'
+
     def _make_request(self, http_method: str, path: str, data=None, **kwargs):
         """
         Make the request to the ActionKit API with the desired method

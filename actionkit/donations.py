@@ -6,9 +6,10 @@ from .httpmethods import HttpMethods
 
 
 class DonationPush(HttpMethods):
+    resource_name = 'donationaction'
+
     def __init__(self, connection):
         self.connection = connection
-        self.base_path = "donationpush/"
 
     def push(self, donation: dict):
         """
@@ -36,6 +37,7 @@ class DonationPush(HttpMethods):
         """
         response = self.push(donation)
         data = response.json()
+        # TODO: Do this async?
         self.set_push_status_incomplete(data)
         return data['resource_uri']
 
@@ -184,3 +186,9 @@ class DonationPush(HttpMethods):
                 )
                 return False
         return True
+
+    def get_resource_uri_from_id(self, resource_id):
+        """
+        Utility method to convert a given resource id to the ActionKit resource_uri
+        """
+        return self.connection.get_resource_uri_from_id(self.resource_name, resource_id)
