@@ -191,4 +191,4 @@ class DonationPush(HttpMethods):
         """
         Utility method to convert a given resource id to the ActionKit resource_uri
         """
-        return self.connection.get_resource_uri_from_id(self.resource_name, resource_id)
+        return self.connection.get_resource_uri_from_id(resource_id, self.resource_name)
