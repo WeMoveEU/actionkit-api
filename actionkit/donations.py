@@ -58,15 +58,15 @@ class DonationPush(HttpMethods):
 
         Returns the resource_uri of the donationpush action
         """
-        if not donationaction_data:
-            if not (donationaction_uri and order_uri and transaction_uri):
-                raise KeyError('Must specify donationaction_data or all three uris')
-        else:
+        if donationaction_data:
             donationaction_uri = donationaction_data['resource_uri']
             order_uri = donationaction_data['order']['resource_uri']
             transaction_uri = donationaction_data['order']['transactions'][0]
+        else:
+            if not (donationaction_uri and order_uri and transaction_uri):
+                raise KeyError('Must specify donationaction_data or all three uris')
         try:
-            # Set the newly created donation action in ActionKit to incomplete
+            # Set the donation action in ActionKit to incomplete
             self.connection.patch(
                 donationaction_uri,
                 {
