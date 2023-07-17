@@ -8,9 +8,6 @@ from .httpmethods import HttpMethods
 class DonationAction(HttpMethods):
     resource_name = 'donationaction'
 
-    def __init__(self, connection):
-        self.connection = connection
-
     def push(self, donation: dict):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
@@ -170,8 +167,7 @@ class DonationAction(HttpMethods):
     def delete_donationaction(self, donationaction_uri: str):
         try:
             # Check to see if the donationaction exists
-            response = self.connection.get(donationaction_uri)
-            data = response.json()
+            data = self.get(donationaction_uri)
             # Only delete if the donationaction is incomplete
             if data['status'] == 'incomplete':
                 self.connection.delete(donationaction_uri)
@@ -186,9 +182,3 @@ class DonationAction(HttpMethods):
                 )
                 return False
         return True
-
-    def get_resource_uri_from_id(self, resource_id):
-        """
-        Utility method to convert a given resource id to the ActionKit resource_uri
-        """
-        return self.connection.get_resource_uri_from_id(resource_id, self.resource_name)
