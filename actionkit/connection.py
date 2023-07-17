@@ -78,25 +78,34 @@ class Connection:
         """
         return f'/rest/v1/{resource_name}/{resource_id}/'
 
-    def _make_request(self, http_method: str, path: str, data=None, **kwargs):
+    def _make_request(
+        self, http_method: str, path: str, json=None, params=None, data=None, **kwargs
+    ):
         """
         Make the request to the ActionKit API with the desired method
         """
         _http_method = http_method.lower()
         request_fn = getattr(requests, _http_method, None)
         if request_fn is None:
-            raise NotImplementedError(
-                'HTTP method {} not supported'.format(_http_method)
-            )
+            raise NotImplementedError(f'HTTP method {_http_method} not supported')
 
         request_kwargs = {}
         request_kwargs.update(self.request_kwargs)
         request_kwargs.update(kwargs)
 
         if _http_method == 'get':
-            request_kwargs['params'] = data
+            if json:
+                raise ValueError('Cannot use json with GET requests')
+            request_kwargs['params'] = params
         else:
-            request_kwargs['json'] = data
+            if params:
+                raise ValueError('Cannot use params with non-GET requests')
+            if data and json:
+                raise ValueError('Cannot use both data and json together in a request')
+            if data:
+                request_kwargs['data'] = data
+            elif json:
+                request_kwargs['json'] = json
 
         url = self._path(path)
 
@@ -147,20 +156,20 @@ class Connection:
         # prepend API path. remove // in case the provided path has a / at the beginning
         return f"https://{self.hostname}" + f"/rest/v1/{path}".replace("//", "/")
 
-    def get(self, path: str, **kwargs) -> dict:
-        return self._make_request('get', path, **kwargs)
+    def get(self, path: str, params: dict = None, **kwargs) -> dict:
+        return self._make_request('get', path, params=params, **kwargs)
 
-    def post(self, path: str, data: dict, **kwargs) -> str:
+    def post(self, path: str, json: dict = None, data: dict = None, **kwargs) -> str:
         """
         Issue a POST request with JSON and other params.
         """
-        return self._make_request('post', path, data=data, **kwargs)
+        return self._make_request('post', path, json=json, data=data, **kwargs)
 
-    def patch(self, path: str, data: dict) -> bool:
-        return self._make_request('patch', path, data=data)
+    def patch(self, path: str, json: dict = None, data: dict = None, **kwargs) -> bool:
+        return self._make_request('patch', path, json=json, data=data, **kwargs)
 
-    def put(self, path: str, data: dict) -> bool:
-        return self._make_request('put', path, data=data)
+    def put(self, path: str, json: dict = None, data: dict = None, **kwargs) -> bool:
+        return self._make_request('put', path, json=json, data=data, **kwargs)
 
-    def delete(self, path: str) -> bool:
-        return self._make_request('delete', path)
+    def delete(self, path: str, **kwargs) -> bool:
+        return self._make_request('delete', path, **kwargs)
