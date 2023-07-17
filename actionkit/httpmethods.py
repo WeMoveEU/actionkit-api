@@ -31,12 +31,11 @@ class HttpMethods:
                 raise Exception(f"Bad request for search(): {e.response.text}: {e}")
             raise
 
-    def delete(self, order: dict):
+    def delete(self, resource_uri: str, *args, **kwargs):
         """
-        Specifically delete an action referenced by an order
-        # TODO: @Romain - this seems very business-logic specific for a delete method in this class
+        Generic delete method for ActionKit resources
         """
-        self.connection.delete(order["action"])
+        self.connection.delete(resource_uri, *args, **kwargs)
         return True
 
     def get(self, resource_uri, *args, **params):

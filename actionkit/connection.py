@@ -171,5 +171,5 @@ class Connection:
     def put(self, path: str, json: dict = None, data: dict = None, **kwargs) -> bool:
         return self._make_request('put', path, json=json, data=data, **kwargs)
 
-    def delete(self, path: str, **kwargs) -> bool:
-        return self._make_request('delete', path, **kwargs)
+    def delete(self, path: str, *args, **kwargs) -> bool:
+        return self._make_request('delete', path, *args, **kwargs)
