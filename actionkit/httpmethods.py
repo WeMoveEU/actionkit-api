@@ -44,45 +44,45 @@ class HttpMethods:
             raise
         return True
 
-    def get(self, resource_uri, **params):
+    def get(self, resource_uri, *args, **params):
         """
         Get an object at path resource_uri from ActionKit
 
         param kwargs are passed as query params to the request
         """
         try:
-            response = self.connection.get(resource_uri, params=params)
+            response = self.connection.get(resource_uri, *args, params=params)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(f"Bad request for get(): {e.response.text}: {e}")
             raise
         return response.json()
 
-    def patch(self, resource_uri: str, to_patch: dict):
+    def patch(self, resource_uri: str, to_patch: dict, *args, **kwargs):
         """
         Generic patch method for ActionKit resources
         """
         try:
-            self.connection.patch(resource_uri, json=to_patch)
+            self.connection.patch(resource_uri, *args, json=to_patch, **kwargs)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(f"Bad request for patch(): {e.response.text}: {e}")
             raise
         return True
 
-    def put(self, resource_uri: str, to_put: dict):
+    def put(self, resource_uri: str, to_put: dict, *args, **kwargs):
         """
         Generic put method for ActionKit resources
         """
         try:
-            self.connection.put(resource_uri, json=to_put)
+            self.connection.put(resource_uri, *args, json=to_put, **kwargs)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(f"Bad request for put(): {e.response.text}: {e}")
             raise
         return True
 
-    def post(self, **kwargs):
+    def post(self, *args, **kwargs):
         """
         Post a new payload for type self.resource_name to ActionKit, passing kwargs directly
         through to requests.post
@@ -90,7 +90,7 @@ class HttpMethods:
         Returns the resource_uri of the newly created resource
         """
         try:
-            response = self.connection.post(self.resource_name, **kwargs)
+            response = self.connection.post(self.resource_name, *args, **kwargs)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(f"Bad request for post(): {e.response.text}: {e}")

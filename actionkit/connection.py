@@ -156,8 +156,8 @@ class Connection:
         # prepend API path. remove // in case the provided path has a / at the beginning
         return f"https://{self.hostname}" + f"/rest/v1/{path}".replace("//", "/")
 
-    def get(self, path: str, params: dict = None, **kwargs) -> dict:
-        return self._make_request('get', path, params=params, **kwargs)
+    def get(self, path: str, *args, params: dict = None, **kwargs) -> dict:
+        return self._make_request('get', path, *args, params=params, **kwargs)
 
     def post(self, path: str, json: dict = None, data: dict = None, **kwargs) -> str:
         """
