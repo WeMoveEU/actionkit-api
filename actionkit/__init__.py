@@ -1,15 +1,16 @@
+import logging
 import os
+
 from .connection import Connection
-from .donations import DonationPush
 from .donationaction import DonationAction
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
-from .orders import Orders
 from .orderrecurring import OrderRecurring
+from .orders import Orders
+from .petitions import Petitions
 from .uploads import Uploads
 from .users import Users
-from .petitions import Petitions
 
 
 def connect(hostname=None, username=None, password=None, **kwargs):
@@ -26,7 +27,12 @@ def connect(hostname=None, username=None, password=None, **kwargs):
             " set ENV ACTIONKIT_USERNAME, ACTIONKIT_PASSWORD, ACTIONKIT_HOSTNAME "
             "or pass parameters to connect()"
         )
-    return Connection(hostname, username, password)
+    return Connection(
+        hostname,
+        username,
+        password,
+        logger=kwargs.get('logger', logging.getLogger(__name__)),
+    )
 
 
 class ActionKit:
@@ -36,10 +42,30 @@ class ActionKit:
         self.Orders = Orders(self.connection)
         self.OrderRecurring = OrderRecurring(self.connection)
         self.DonationAction = DonationAction(self.connection)
-        self.DonationPush = DonationPush(self.connection)
         self.Groups = Groups(self.connection)
         self.Languages = Languages(self.connection)
         self.Lists = Lists(self.connection)
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
         self.Petitions = Petitions(self.connection)
+
+    @staticmethod
+    def get_resource_uri(self, response):
+        """
+        Provides access to the underlying Connection class's get_resource_uri method
+        """
+        return Connection.get_resource_uri(response)
+
+    @staticmethod
+    def get_resource_uri_id(resource_uri):
+        """
+        Provides access to the underlying Connection class's get_resource_uri_id method
+        """
+        return Connection.get_resource_uri_id(resource_uri)
+
+    @staticmethod
+    def get_resource_uri_id_from_response(response):
+        """
+        Provides access to the underlying Connection class's get_resource_uri_id_from_response method
+        """
+        return Connection.get_resource_uri_id_from_response(response)
