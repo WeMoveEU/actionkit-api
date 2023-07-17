@@ -28,7 +28,7 @@ class Petitions(HttpMethods):
         return self.create(new_page, new_content)
 
     def get(self, id):
-        return self.get(f"petitionpage/{id}/")
+        return super().get(f"petitionpage/{id}/")
 
     def update(self, id, params):
         return self.patch(f"petitionpage/{id}/", params)
