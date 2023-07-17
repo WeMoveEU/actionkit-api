@@ -3,27 +3,26 @@ import re
 from .httpmethods import HttpMethods
 
 class Users(HttpMethods):
-    def __init__(self, connection):
-        self.connection = connection
+    resource_name = "user"
 
     def get(self, email):
-        users = self.connection.get(f"{self.uri()}?email={email}")
+        users = self.get(f"{self.uri()}?email={email}")
         if users["meta"]["total_count"] == 0:
             return None
         else:
             return users["objects"][0]
 
     def create(self, user):
-        return self.connection.post(self.uri(), user)
+        return self.post(user)
 
     def update(self, path, user):
-        return self.connection.patch(path, user)
+        return self.patch(path, user)
 
     def uri(self, id=None):
-        return f"user/{id or ''}"
+        return f"{self.resource_name}/{id or ''}"
 
     def id(self, uri):
-        m = re.search("/user/(\d+)", uri)
+        m = re.search(f"/{self.resource_name}/(\d+)", uri)
         if m:
             return m[1]
         else:
