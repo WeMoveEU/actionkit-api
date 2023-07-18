@@ -38,13 +38,13 @@ class HttpMethods:
         self.connection.delete(resource_uri, *args, **kwargs)
         return True
 
-    def get(self, resource_uri, *args, **params):
+    def get(self, resource_uri = None, *args, **params):
         """
         Get an object at path resource_uri from ActionKit
 
         param kwargs are passed as query params to the request
         """
-        response = self.connection.get(resource_uri, *args, params=params)
+        response = self.connection.get(resource_uri or self.resource_name, *args, params=params)
         return response.json()
 
     def patch(self, resource_uri: str, to_patch: dict, *args, **kwargs):

@@ -5,12 +5,12 @@ from .httpmethods import HttpMethods
 class Users(HttpMethods):
     resource_name = "user"
 
-    def get(self, email):
-        users = self.get(f"{self.uri()}?email={email}")
-        if users["meta"]["total_count"] == 0:
+    def get_by_email(self, email):
+        users = self.search(email=email)
+        if len(users) == 0:
             return None
         else:
-            return users["objects"][0]
+            return users[0]
 
     def create(self, user):
         return self.post(user)
