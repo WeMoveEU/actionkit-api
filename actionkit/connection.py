@@ -123,9 +123,11 @@ class Connection:
                     f'ActionKit Request headers:\n{pprint.pformat(response.request.headers)}'
                 )
                 if response.content:
-                    self.logger.debug(
-                        f'ActionKit Response body:\n{pprint.pformat(response.json())}'
-                    )
+                    if response.headers.get('content-type') == "application/json":
+                        content = pprint.pformat(response.json())
+                    else:
+                        content = response.text
+                    self.logger.debug(f'ActionKit Response body:\n{content}')
                 response.raise_for_status()
                 break
             except requests.exceptions.HTTPError as e:
