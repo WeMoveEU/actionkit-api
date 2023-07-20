@@ -247,7 +247,7 @@ class DonationAction(HttpMethods):
                     f'Failed to delete donationaction "{donationaction_uri}":\n{e.response.text}: {e}'
                 )
             elif e.response.status_code == 404:
-                self.connection.logger.info(
+                self.connection.logger.warning(
                     f'Donationaction {donationaction_uri} not found. Skipping delete.\n'
                 )
                 return False
