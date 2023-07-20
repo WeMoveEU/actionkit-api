@@ -1,4 +1,5 @@
 import sys
+from decimal import Decimal
 
 from requests import HTTPError
 
@@ -8,12 +9,56 @@ from .httpmethods import HttpMethods
 class DonationAction(HttpMethods):
     resource_name = 'donationaction'
 
-    def push(self, donation: dict):
+    def push(
+        self,
+        email: str,
+        akid: str,
+        first_name: str,
+        last_name: str,
+        country: str,
+        postal: str,
+        amount: Decimal,
+        currency: str,
+        page: str,
+        payment_account: str,
+        action_fields: dict,
+    ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
         """
         try:
-            return self.connection.post("donationpush/", donation)
+            return self.connection.post(
+                "donationpush/",
+                dict(
+                    order=dict(
+                        card_num='4111111111111111',
+                        card_code='007',
+                        amount=str(amount),
+                        currency=currency,
+                        exp_date_month='12',
+                        exp_date_year='9999',
+                        payment_account=payment_account,
+                    ),
+                    user=dict(
+                        # Only supply actionkit with the email if the akid is not passed in
+                        email=email if not akid else None,
+                        akid=akid,
+                        first_name=first_name,
+                        last_name=last_name,
+                        address1=None,
+                        region=None,
+                        city=None,
+                        state=None,
+                        country=country,
+                        postal=postal if country != 'US' else None,
+                        zip=postal if country == 'US' else None,
+                    ),
+                    donationpage=dict(name=page),
+                    action=dict(
+                        fields=action_fields,
+                    ),
+                ),
+            )
         except HTTPError as e:
             if e.response.status_code == 409:
                 sys.stderr.write(
@@ -26,13 +71,38 @@ class DonationAction(HttpMethods):
                 )
             raise
 
-    def push_and_set_incomplete(self, donation: dict):
+    def push_and_set_incomplete(
+        self,
+        email: str,
+        akid: str,
+        first_name: str,
+        last_name: str,
+        country: str,
+        postal: str,
+        amount: Decimal,
+        currency: str,
+        page: str,
+        payment_account: str,
+        action_fields: dict,
+    ):
         """
         Convenience method that creates a new donation action then sets it to incomplete
 
         Returns the resource_uri of the created donationpush action
         """
-        response = self.push(donation)
+        response = self.push(
+            email,
+            akid,
+            first_name,
+            last_name,
+            country,
+            postal,
+            amount,
+            currency,
+            page,
+            payment_account,
+            action_fields,
+        )
         data = response.json()
         # TODO: Do this async?
         self.set_push_status_incomplete(data)
@@ -177,8 +247,18 @@ class DonationAction(HttpMethods):
                     f'Failed to delete donationaction "{donationaction_uri}":\n{e.response.text}: {e}'
                 )
             elif e.response.status_code == 404:
-                self.connection.logger.info(
+                self.connection.logger.warning(
                     f'Donationaction {donationaction_uri} not found. Skipping delete.\n'
                 )
                 return False
         return True
+
+    def delete_donationaction_by_resource_id(self, resource_id):
+        """
+        Deletes a donationaction referenced by the resource_id if it exists
+        """
+        if resource_id:
+            resource_uri = self.get_resource_uri_from_id(resource_id)
+            if resource_uri:
+                # Delete the referenced donation action in ActionKit
+                self.delete_donationaction(resource_uri)
