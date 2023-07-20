@@ -252,3 +252,13 @@ class DonationAction(HttpMethods):
                 )
                 return False
         return True
+
+    def delete_donationaction_by_resource_id(self, resource_id):
+        """
+        Deletes a donationaction referenced by the resource_id if it exists
+        """
+        if resource_id:
+            resource_uri = self.get_resource_uri_from_id(resource_id)
+            if resource_uri:
+                # Delete the referenced donation action in ActionKit
+                self.delete_donationaction(resource_uri)
