@@ -136,8 +136,8 @@ class Connection:
                     retries_left -= 1
                     backoff *= 2
                     continue
-                if hasattr(e.response, 'text'):
-                    self.logger.error(
+                if hasattr(e.response, 'text') and e.response.text:
+                    self.logger.warning(
                         f'Text from unsuccessful response: {e.response.text}'
                     )
                 else:
