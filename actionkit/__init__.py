@@ -50,7 +50,7 @@ class ActionKit:
         self.Petitions = Petitions(self.connection)
 
     @staticmethod
-    def get_resource_uri(self, response):
+    def get_resource_uri(response):
         """
         Provides access to the underlying Connection class's get_resource_uri method
         """

@@ -112,7 +112,7 @@ class DonationAction(HttpMethods):
         self,
         status,
         donationaction_data: dict = None,
-        donationaction_uri: str = None,
+        resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
     ):
@@ -120,22 +120,39 @@ class DonationAction(HttpMethods):
         Sets the donation, order, and transaction status for an existing donationpush action
 
         Optionally takes a donationaction_data dict response from the successful creation of a
-        donationaction, or alternatively you can specify the donationaction_uri, order_uri, and
-        transaction_uri explicitly
+        donationaction, or alternatively you can specify the resource_uri by itself, or
+        resource_uri, order_uri, and transaction_uri explicitly.
+
+        Note that if you just specify the resource_uri, it will generate an additional request to
+        look up the rest of the data from ActionKit.
 
         Returns the resource_uri of the donationpush action
         """
+        if not donationaction_data:
+            if resource_uri:
+                if bool(order_uri) ^ bool(transaction_uri):
+                    raise KeyError(
+                        'If transaction_uri or order_uri is passed in addition to resource_uri, you '
+                        'must specify all three'
+                    )
+                donationaction_data = self.get(resource_uri)
+            else:
+                raise KeyError(
+                    'If donationaction_data is not passed, you must specify resource_uri'
+                )
+        elif resource_uri or order_uri or transaction_uri:
+            raise KeyError('When passing donationaction_data, do not specify the uris')
+
         if donationaction_data:
-            donationaction_uri = donationaction_data['resource_uri']
-            order_uri = donationaction_data['order']['resource_uri']
-            transaction_uri = donationaction_data['order']['transactions'][0]
-        else:
-            if not (donationaction_uri and order_uri and transaction_uri):
-                raise KeyError('Must specify donationaction_data or all three uris')
+            uris = self.extract_resource_uris(donationaction_data=donationaction_data)
+            resource_uri = uris['resource_uri']
+            order_uri = uris['order_uri']
+            transaction_uri = uris['transaction_uri']
+
         try:
             # Set the donation action in ActionKit to incomplete
             self.connection.patch(
-                donationaction_uri,
+                resource_uri,
                 {
                     'status': status,
                 },
@@ -165,7 +182,7 @@ class DonationAction(HttpMethods):
     def set_push_status_incomplete(
         self,
         donationaction_data: dict = None,
-        donationaction_uri: str = None,
+        resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
     ):
@@ -178,7 +195,7 @@ class DonationAction(HttpMethods):
         return self.set_push_status(
             'incomplete',
             donationaction_data,
-            donationaction_uri,
+            resource_uri,
             order_uri,
             transaction_uri,
         )
@@ -186,7 +203,7 @@ class DonationAction(HttpMethods):
     def set_push_status_complete(
         self,
         donationaction_data: dict = None,
-        donationaction_uri: str = None,
+        resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
     ):
@@ -199,7 +216,7 @@ class DonationAction(HttpMethods):
         return self.set_push_status(
             'complete',
             donationaction_data,
-            donationaction_uri,
+            resource_uri,
             order_uri,
             transaction_uri,
         )
@@ -207,7 +224,7 @@ class DonationAction(HttpMethods):
     def set_push_status_failed(
         self,
         donationaction_data: dict = None,
-        donationaction_uri: str = None,
+        resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
     ):
@@ -220,7 +237,7 @@ class DonationAction(HttpMethods):
         return self.set_push_status(
             'failed',
             donationaction_data,
-            donationaction_uri,
+            resource_uri,
             order_uri,
             transaction_uri,
         )
@@ -234,21 +251,21 @@ class DonationAction(HttpMethods):
     def add_recurring_payment(self, payment):
         return self.connection.post("recurringpaymentpush/", payment)
 
-    def delete_donationaction(self, donationaction_uri: str):
+    def delete_donationaction(self, resource_uri: str):
         try:
             # Check to see if the donationaction exists
-            data = self.get(donationaction_uri)
+            data = self.get(resource_uri)
             # Only delete if the donationaction is incomplete
             if data['status'] == 'incomplete':
-                self.connection.delete(donationaction_uri)
+                self.connection.delete(resource_uri)
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
-                    f'Failed to delete donationaction "{donationaction_uri}":\n{e.response.text}: {e}'
+                    f'Failed to delete donationaction "{resource_uri}":\n{e.response.text}: {e}'
                 )
             elif e.response.status_code == 404:
                 self.connection.logger.warning(
-                    f'Donationaction {donationaction_uri} not found. Skipping delete.\n'
+                    f'Donationaction {resource_uri} not found. Skipping delete.\n'
                 )
                 return False
         return True
@@ -262,3 +279,37 @@ class DonationAction(HttpMethods):
             if resource_uri:
                 # Delete the referenced donation action in ActionKit
                 self.delete_donationaction(resource_uri)
+
+    def set_push_status_by_resource_id(self, resource_id, status):
+        """
+        Convenience method to set the status of a donationaction referenced by the resource_id
+        """
+        resource_uri = self.get_resource_uri_from_id(resource_id)
+        self.set_push_status(status, resource_uri=resource_uri)
+
+    def set_push_status_incomplete_by_resource_id(self, resource_id):
+        """
+        Convenience method to set the status of a donationaction referenced by the resource_id to
+        incomplete
+        """
+        self.set_push_status_by_resource_id(resource_id, 'incomplete')
+
+    def extract_resource_uris(self, resource_uri=None, donationaction_data=None):
+        """
+        Extracts all relevant resource uris from a donationaction record.
+
+        If resource_uri is passed, the donationaction data will be retrieved from
+        the ActionKit API. Otherwise, the donationaction_data dict can be passed directly.
+        """
+        # Check that at least one of the two arguments is passed
+        if not (resource_uri or donationaction_data):
+            raise KeyError('Must specify either resource_uri or donationaction_data')
+
+        if not donationaction_data:
+            donationaction_data = self.get(resource_uri)
+
+        return dict(
+            resource_uri=donationaction_data['resource_uri'],
+            order_uri=donationaction_data['order']['resource_uri'],
+            transaction_uri=donationaction_data['order']['transactions'][0],
+        )
