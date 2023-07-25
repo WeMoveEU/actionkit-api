@@ -1,4 +1,5 @@
 import sys
+import uuid
 from decimal import Decimal
 
 from requests import HTTPError
@@ -22,43 +23,54 @@ class DonationAction(HttpMethods):
         page: str,
         payment_account: str,
         action_fields: dict,
+        is_recurring: bool = False,
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
+        Set is_recurring to True to create a recurring payment profile
+
+        https://action.wemove.eu/docs/manual/api/rest/donationpush.html
         """
-        try:
-            return self.connection.post(
-                "donationpush/",
+        payload = dict(
+            order=dict(
+                card_num='4111111111111111',
+                card_code='007',
+                amount=str(amount),
+                currency=currency,
+                exp_date_month='12',
+                exp_date_year='9999',
+                payment_account=payment_account,
+            ),
+            user=dict(
+                # Only supply actionkit with the email if the akid is not passed in
+                email=email if not akid else None,
+                akid=akid,
+                first_name=first_name,
+                last_name=last_name,
+                address1=None,
+                region=None,
+                city=None,
+                state=None,
+                country=country,
+                postal=postal if country != 'US' else None,
+                zip=postal if country == 'US' else None,
+            ),
+            donationpage=dict(name=page),
+            action=dict(
+                fields=action_fields,
+            ),
+        )
+        if is_recurring:
+            # https://action.wemove.eu/docs/manual/api/rest/donationpush.html#recurring-profiles
+            payload['order'].update(
                 dict(
-                    order=dict(
-                        card_num='4111111111111111',
-                        card_code='007',
-                        amount=str(amount),
-                        currency=currency,
-                        exp_date_month='12',
-                        exp_date_year='9999',
-                        payment_account=payment_account,
-                    ),
-                    user=dict(
-                        # Only supply actionkit with the email if the akid is not passed in
-                        email=email if not akid else None,
-                        akid=akid,
-                        first_name=first_name,
-                        last_name=last_name,
-                        address1=None,
-                        region=None,
-                        city=None,
-                        state=None,
-                        country=country,
-                        postal=postal if country != 'US' else None,
-                        zip=postal if country == 'US' else None,
-                    ),
-                    donationpage=dict(name=page),
-                    action=dict(
-                        fields=action_fields,
-                    ),
-                ),
+                    recurring_id=str(uuid.uuid4()),
+                    recurring_period='months',
+                )
             )
+
+        try:
+            return self.connection.post("donationpush/", payload)
         except HTTPError as e:
             if e.response.status_code == 409:
                 sys.stderr.write(
@@ -150,21 +162,24 @@ class DonationAction(HttpMethods):
             transaction_uri = uris['transaction_uri']
 
         try:
-            # Set the donation action in ActionKit to incomplete
+            self.logger.debug(
+                f'Setting donationaction {resource_uri} status to {status}'
+            )
+            # Set the donation action in ActionKit to the given
             self.connection.patch(
                 resource_uri,
                 {
                     'status': status,
                 },
             )
-            # Set the corresponding order also to incomplete status
+            # Set the corresponding order also to the given status
             self.connection.patch(
                 order_uri,
                 {
                     'status': status,
                 },
             )
-            # Set the corresponding transacion to incomplete status
+            # Set the corresponding transacion to the given status
             self.connection.patch(
                 transaction_uri,
                 {
@@ -200,7 +215,7 @@ class DonationAction(HttpMethods):
             transaction_uri,
         )
 
-    def set_push_status_complete(
+    def set_push_status_completed(
         self,
         donationaction_data: dict = None,
         resource_uri: str = None,
@@ -214,7 +229,7 @@ class DonationAction(HttpMethods):
         Returns the resource_uri of the donationpush action
         """
         return self.set_push_status(
-            'complete',
+            'completed',
             donationaction_data,
             resource_uri,
             order_uri,
@@ -252,6 +267,9 @@ class DonationAction(HttpMethods):
         return self.connection.post("recurringpaymentpush/", payment)
 
     def delete_donationaction(self, resource_uri: str):
+        """
+        Deletes a donationaction referenced by the resource_uri if the status is still "incomplete"
+        """
         try:
             # Check to see if the donationaction exists
             data = self.get(resource_uri)

@@ -8,6 +8,10 @@ class HttpMethods:
         self.connection = connection
 
     @property
+    def logger(self):
+        return self.connection.logger
+
+    @property
     def resource_name(self):
         raise NotImplementedError('ActionKit resource_name must be defined')
 

@@ -9,6 +9,7 @@ from .lists import Lists
 from .orderrecurring import OrderRecurring
 from .orders import Orders
 from .petitions import Petitions
+from .recurringpaymentpush import RecurringPaymentPush
 from .uploads import Uploads
 from .users import Users
 
@@ -48,6 +49,7 @@ class ActionKit:
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
         self.Petitions = Petitions(self.connection)
+        self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
 
     @staticmethod
     def get_resource_uri(response):
