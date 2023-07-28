@@ -131,6 +131,10 @@ class DonationAction(HttpMethods):
         """
         Sets the donation, order, and transaction status for an existing donationpush action
 
+        If the action's status is already set to the given status, no update is performed. We only
+        know this if not all the uris are passed in to the method. In that case we don't need to
+        know the contents of the donationpush action data.
+
         Optionally takes a donationaction_data dict response from the successful creation of a
         donationaction, or alternatively you can specify the resource_uri by itself, or
         resource_uri, order_uri, and transaction_uri explicitly.
@@ -161,6 +165,12 @@ class DonationAction(HttpMethods):
             order_uri = uris['order_uri']
             transaction_uri = uris['transaction_uri']
 
+            # check to see if the status we want to set is already set
+            if donationaction_data['order']['status'] == status:
+                self.logger.debug(
+                    f'Donationaction {resource_uri} already set to {status}. No update required'
+                )
+                return resource_uri
         try:
             self.logger.debug(
                 f'Setting donationaction {resource_uri} status to {status}'
@@ -192,7 +202,7 @@ class DonationAction(HttpMethods):
                     f'Failed to set donationaction status "{status}":\n{e.response.text}: {e}'
                 )
             raise
-        return donationaction_data['resource_uri']
+        return resource_uri
 
     def set_push_status_incomplete(
         self,
