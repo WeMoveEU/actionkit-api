@@ -127,6 +127,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
+        admin_url: dict = None,
     ):
         """
         Sets the donation, order, and transaction status for an existing donationpush action
@@ -141,6 +142,9 @@ class DonationAction(HttpMethods):
 
         Note that if you just specify the resource_uri, it will generate an additional request to
         look up the rest of the data from ActionKit.
+
+        admin_url, if passed, will be used to update the action fields of the donationaction with a
+        url which is a link to the payment provider admin page for the purchase.
 
         Returns the resource_uri of the donationpush action
         """
@@ -164,6 +168,7 @@ class DonationAction(HttpMethods):
             resource_uri = uris['resource_uri']
             order_uri = uris['order_uri']
             transaction_uri = uris['transaction_uri']
+            base_action_fields = donationaction_data['fields']
 
             # check to see if the status we want to set is already set
             if donationaction_data['order']['status'] == status:
@@ -196,6 +201,15 @@ class DonationAction(HttpMethods):
                     'status': status,
                 },
             )
+            if base_action_fields and admin_url:
+                # Update the action fields, preserving what was there before
+                base_action_fields.update({'admin_url': admin_url})
+                self.connection.patch(
+                    resource_uri,
+                    {
+                        'fields': base_action_fields,
+                    },
+                )
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
@@ -231,6 +245,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
+        admin_url: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -244,6 +259,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
+            admin_url,
         )
 
     def set_push_status_failed(
