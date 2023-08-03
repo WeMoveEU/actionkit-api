@@ -163,12 +163,14 @@ class DonationAction(HttpMethods):
         elif resource_uri or order_uri or transaction_uri:
             raise KeyError('When passing donationaction_data, do not specify the uris')
 
+        base_action_fields = {}
+
         if donationaction_data:
             uris = self.extract_resource_uris(donationaction_data=donationaction_data)
             resource_uri = uris['resource_uri']
             order_uri = uris['order_uri']
             transaction_uri = uris['transaction_uri']
-            base_action_fields = donationaction_data['fields']
+            base_action_fields = donationaction_data.get('fields', {})
 
             # check to see if the status we want to set is already set
             if donationaction_data['order']['status'] == status:
