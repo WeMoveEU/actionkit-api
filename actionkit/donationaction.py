@@ -22,7 +22,7 @@ class DonationAction(HttpMethods):
         currency: str,
         page: str,
         payment_account: str,
-        action_fields: dict,
+        action_fields: dict = {},
         is_recurring: bool = False,
     ):
         """
@@ -56,10 +56,9 @@ class DonationAction(HttpMethods):
                 zip=postal if country == 'US' else None,
             ),
             donationpage=dict(name=page),
-            action=dict(
-                fields=action_fields,
-            ),
         )
+        if action_fields:
+            payload['action'] = {'fields': action_fields}
         if is_recurring:
             # https://action.wemove.eu/docs/manual/api/rest/donationpush.html#recurring-profiles
             payload['order'].update(
@@ -95,7 +94,7 @@ class DonationAction(HttpMethods):
         currency: str,
         page: str,
         payment_account: str,
-        action_fields: dict,
+        action_fields: dict = {},
     ):
         """
         Convenience method that creates a new donation action then sets it to incomplete
