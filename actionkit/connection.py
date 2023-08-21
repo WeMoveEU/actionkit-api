@@ -141,7 +141,7 @@ class Connection:
                         f'Text from unsuccessful response: {e.response.text}'
                     )
                 else:
-                    self.logger.error(e.message)
+                    self.logger.error(e)
                 raise
 
         return response
