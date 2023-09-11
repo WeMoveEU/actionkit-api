@@ -1,6 +1,7 @@
 import logging
 import os
 
+from .campaigns import Campaigns
 from .connection import Connection
 from .donationaction import DonationAction
 from .groups import Groups
@@ -49,6 +50,7 @@ class ActionKit:
         self.Lists = Lists(self.connection)
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
+        self.Campaigns = Campaigns(self.connection)
         self.Petitions = Petitions(self.connection)
         self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
         self.ProfileCancelPush = ProfileCancelPush(self.connection)
