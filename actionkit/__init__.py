@@ -4,6 +4,7 @@ import os
 from .campaigns import Campaigns
 from .connection import Connection
 from .donationaction import DonationAction
+from .donationpages import DonationPages
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
@@ -54,6 +55,7 @@ class ActionKit:
         self.Campaigns = Campaigns(self.connection)
         self.MultilingualCampaigns = MultilingualCampaigns(self.connection)
         self.Petitions = Petitions(self.connection)
+        self.DonationPages = DonationPages(self.connection)
         self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
         self.ProfileCancelPush = ProfileCancelPush(self.connection)
 
