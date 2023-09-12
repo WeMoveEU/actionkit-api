@@ -126,7 +126,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        admin_url: dict = None,
+        action_fields: dict = None,
     ):
         """
         Sets the donation, order, and transaction status for an existing donationpush action
@@ -142,8 +142,8 @@ class DonationAction(HttpMethods):
         Note that if you just specify the resource_uri, it will generate an additional request to
         look up the rest of the data from ActionKit.
 
-        admin_url, if passed, will be used to update the action fields of the donationaction with a
-        url which is a link to the payment provider admin page for the purchase.
+        action_fields, if passed, will be used to update the action fields with the content of the
+        current dictionary
 
         Returns the resource_uri of the donationpush action
         """
@@ -202,9 +202,12 @@ class DonationAction(HttpMethods):
                     'status': status,
                 },
             )
-            if base_action_fields and admin_url:
-                # Update the action fields, preserving what was there before
-                base_action_fields.update({'admin_url': admin_url})
+            if action_fields:
+                if base_action_fields:
+                    # Update the action fields, preserving what was there before
+                    base_action_fields.update(action_fields)
+                else:
+                    base_action_fields = action_fields
                 self.connection.patch(
                     resource_uri,
                     {
@@ -246,7 +249,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        admin_url: str = None,
+        action_fields: dict = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -260,7 +263,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
-            admin_url,
+            action_fields,
         )
 
     def set_push_status_failed(
