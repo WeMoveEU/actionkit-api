@@ -7,6 +7,7 @@ from .donationaction import DonationAction
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
+from .multilingualcampaigns import MultilingualCampaigns
 from .orderrecurring import OrderRecurring
 from .orders import Orders
 from .petitions import Petitions
@@ -51,6 +52,7 @@ class ActionKit:
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
         self.Campaigns = Campaigns(self.connection)
+        self.MultilingualCampaigns = MultilingualCampaigns(self.connection)
         self.Petitions = Petitions(self.connection)
         self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
         self.ProfileCancelPush = ProfileCancelPush(self.connection)

@@ -41,4 +41,3 @@ class Campaigns(HttpMethods):
 
         return campaign_uri
 
-
