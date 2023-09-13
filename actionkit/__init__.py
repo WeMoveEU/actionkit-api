@@ -14,6 +14,7 @@ from .orders import Orders
 from .petitions import Petitions
 from .profilecancelpush import ProfileCancelPush
 from .recurringpaymentpush import RecurringPaymentPush
+from .sql import SQL
 from .uploads import Uploads
 from .users import Users
 
@@ -58,6 +59,7 @@ class ActionKit:
         self.DonationPages = DonationPages(self.connection)
         self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
         self.ProfileCancelPush = ProfileCancelPush(self.connection)
+        self.SQL = SQL(self.connection)
 
     @staticmethod
     def get_resource_uri(response):
