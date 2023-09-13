@@ -9,7 +9,9 @@ class SQL(HttpMethods):
         self.donation_action = DonationAction(connection)
         super().__init__(connection)
 
-    def _run_query(self, query: str = '', **values: dict):
+    def _run_query(
+        self, query: str = '', refresh=False, cache_duration=600, **values: dict
+    ):
         """
         Runs an arbitrary SQL query against the ActionKit database.
         Returns the result.
@@ -23,10 +25,18 @@ class SQL(HttpMethods):
         if not query:
             raise ValueError('Query must be provided')
         return self.connection.post(
-            self.resource_name, json=dict(query=query, **values)
+            self.resource_name,
+            json=dict(
+                query=query,
+                refresh=refresh,
+                cache_duration=cache_duration,
+                **values,
+            ),
         )
 
-    def get_action_by_subscription_id(self, provider_subscription_id: str):
+    def get_action_by_subscription_id(
+        self, provider_subscription_id: str, refresh=False
+    ):
         """
         Search and return a action record with a specific provider_subscription_id custom
         action field.
@@ -44,7 +54,7 @@ class SQL(HttpMethods):
             GROUP BY core_action.id
         """
         response = self._run_query(
-            query, provider_subscription_id=provider_subscription_id
+            query, refresh, provider_subscription_id=provider_subscription_id
         )
         results = response.json()
         if results:
@@ -53,6 +63,7 @@ class SQL(HttpMethods):
                     f'Found multiple action records with provider_subscription_id {provider_subscription_id}'
                 )
                 # Return the action data as presented by the ActionKit API
-                return self.donation_action.get(results[0]['action_id'])
-            return results[0]
+            return self.donation_action.get(
+                resource_uri=f'{self.donation_action.resource_name}/{results[0][0]}'
+            )
         return None
