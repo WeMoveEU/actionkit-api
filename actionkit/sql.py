@@ -22,7 +22,9 @@ class SQL(HttpMethods):
         """
         if not query:
             raise ValueError('Query must be provided')
-        return self.post(dict(query=query, **values))
+        return self.connection.post(
+            self.resource_name, json=dict(query=query, **values)
+        )
 
     def get_donationaction_by_subscription_id(self, provider_subscription_id: str):
         """
