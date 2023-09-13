@@ -26,17 +26,17 @@ class SQL(HttpMethods):
             self.resource_name, json=dict(query=query, **values)
         )
 
-    def get_donationaction_by_subscription_id(self, provider_subscription_id: str):
+    def get_action_by_subscription_id(self, provider_subscription_id: str):
         """
-        Search and return a donationaction record with a specific provider_subscription_id custom
+        Search and return a action record with a specific provider_subscription_id custom
         action field.
 
         :param provider_subscription_id: The provider subscription id to search for.
 
-        Returns the donationaction record if found
+        Returns the action record if found
         """
         query = """
-            SELECT core_action.id AS "donationaction_id"
+            SELECT core_action.id AS "action_id"
             FROM core_action
             JOIN core_actionfield ON core_actionfield.parent_id = core_action.id
             JOIN core_order ON core_order.action_id = core_action.id
@@ -50,9 +50,9 @@ class SQL(HttpMethods):
         if results:
             if len(results) > 1:
                 self.logger.warning(
-                    f'Found multiple donationaction records with provider_subscription_id {provider_subscription_id}'
+                    f'Found multiple action records with provider_subscription_id {provider_subscription_id}'
                 )
-                # Return the donationaction data as presented by the ActionKit API
-                return self.donation_action.get(results[0]['donationaction_id'])
+                # Return the action data as presented by the ActionKit API
+                return self.donation_action.get(results[0]['action_id'])
             return results[0]
         return None
