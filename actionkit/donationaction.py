@@ -177,6 +177,7 @@ class DonationAction(HttpMethods):
                     f'Donationaction {resource_uri} already set to {status}. No update required'
                 )
                 return resource_uri
+
         try:
             self.logger.debug(
                 f'Setting donationaction {resource_uri} status to {status}'
@@ -203,11 +204,8 @@ class DonationAction(HttpMethods):
                 },
             )
             if action_fields:
-                if base_action_fields:
-                    # Update the action fields, preserving what was there before
-                    base_action_fields.update(action_fields)
-                else:
-                    base_action_fields = action_fields
+                # Update the action fields, preserving what was there before
+                base_action_fields.update(action_fields)
                 self.connection.patch(
                     resource_uri,
                     {
