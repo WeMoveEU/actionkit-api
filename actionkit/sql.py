@@ -33,37 +33,3 @@ class SQL(HttpMethods):
                 **values,
             ),
         )
-
-    def get_action_by_subscription_id(
-        self, provider_subscription_id: str, refresh=False
-    ):
-        """
-        Search and return a action record with a specific provider_subscription_id custom
-        action field.
-
-        :param provider_subscription_id: The provider subscription id to search for.
-
-        Returns the action record if found
-        """
-        query = """
-            SELECT core_action.id AS "action_id"
-            FROM core_action
-            JOIN core_actionfield ON core_actionfield.parent_id = core_action.id
-            JOIN core_order ON core_order.action_id = core_action.id
-            WHERE core_actionfield.value = {{ provider_subscription_id }}
-            GROUP BY core_action.id
-        """
-        response = self._run_query(
-            query, refresh, provider_subscription_id=provider_subscription_id
-        )
-        results = response.json()
-        if results:
-            if len(results) > 1:
-                self.logger.warning(
-                    f'Found multiple action records with provider_subscription_id {provider_subscription_id}'
-                )
-                # Return the action data as presented by the ActionKit API
-            return self.donation_action.get(
-                resource_uri=f'{self.donation_action.resource_name}/{results[0][0]}'
-            )
-        return None
