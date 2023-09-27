@@ -14,16 +14,18 @@ class Campaigns(HttpMethods):
         return dict((int(c[0]), c[1]) for c in choices)
 
     def create(self, name: str, campaign_type: str, **params) -> str:
+        "Create a signup page representing a WeMove campaign"
         fields = dict(params.get("fields", {}))
         fields["campaign_type"] = campaign_type
         for p in ["lead_campaigner", "topic"]:
             if p in params:
                 fields[p] = params[p]
+        title = params.get("title", name)
 
         # Create the campaign page
         campaign_uri = self.post({
             "name": name,
-            "title": name,
+            "title": title,
             "fields": fields
         })
 
