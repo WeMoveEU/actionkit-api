@@ -13,6 +13,7 @@ from .orderrecurring import OrderRecurring
 from .orders import Orders
 from .petitions import Petitions
 from .profilecancelpush import ProfileCancelPush
+from .profileupdatepush import ProfileUpdatePush
 from .recurringpaymentpush import RecurringPaymentPush
 from .sql import SQL
 from .uploads import Uploads
@@ -59,6 +60,7 @@ class ActionKit:
         self.DonationPages = DonationPages(self.connection)
         self.RecurringPaymentPush = RecurringPaymentPush(self.connection)
         self.ProfileCancelPush = ProfileCancelPush(self.connection)
+        self.ProfileUpdatePush = ProfileUpdatePush(self.connection)
         self.SQL = SQL(self.connection)
 
     @staticmethod
