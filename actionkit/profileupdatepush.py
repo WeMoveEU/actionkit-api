@@ -26,9 +26,6 @@ class ProfileUpdatePush(HttpMethods):
                 amount=str(amount),
                 currency=currency.upper(),
                 trans_id=trans_id,
-                card_num='4111111111111111',
-                exp_date_month='12',
-                exp_date_year='9999',
                 **kwargs,
             )
         )
