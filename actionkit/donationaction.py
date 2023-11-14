@@ -270,6 +270,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
+        action_fields: dict = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -283,6 +284,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
+            action_fields,
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
