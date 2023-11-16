@@ -127,6 +127,7 @@ class DonationAction(HttpMethods):
         order_uri: str = None,
         transaction_uri: str = None,
         action_fields: dict = None,
+        trans_id: str = None,
     ):
         """
         Sets the donation, order, and transaction status for an existing donationpush action
@@ -182,27 +183,20 @@ class DonationAction(HttpMethods):
             self.logger.debug(
                 f'Setting donationaction {resource_uri} status to {status}'
             )
-            # Set the donation action in ActionKit to the given
-            self.connection.patch(
-                resource_uri,
-                {
-                    'status': status,
-                },
-            )
+            status_payload = {'status': status}
+            # Set the donation action in ActionKit to the given status
+            self.connection.patch(resource_uri, status_payload)
             # Set the corresponding order also to the given status
-            self.connection.patch(
-                order_uri,
-                {
-                    'status': status,
-                },
-            )
-            # Set the corresponding transacion to the given status
-            self.connection.patch(
-                transaction_uri,
-                {
-                    'status': status,
-                },
-            )
+            self.connection.patch(order_uri, status_payload)
+
+            # Set the corresponding transaction to the given status, adding the merchant trans_id
+            # if it is passed in
+            transaction_payload = status_payload.copy()
+
+            if trans_id:
+                transaction_payload['trans_id'] = trans_id
+
+            self.connection.patch(transaction_uri, transaction_payload)
             if action_fields:
                 # Update the action fields, preserving what was there before
                 base_action_fields.update(action_fields)
@@ -226,6 +220,8 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
+        action_fields: dict = None,
+        trans_id: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -239,6 +235,8 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
+            action_fields,
+            trans_id,
         )
 
     def set_push_status_completed(
@@ -248,6 +246,7 @@ class DonationAction(HttpMethods):
         order_uri: str = None,
         transaction_uri: str = None,
         action_fields: dict = None,
+        trans_id: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -262,6 +261,7 @@ class DonationAction(HttpMethods):
             order_uri,
             transaction_uri,
             action_fields,
+            trans_id,
         )
 
     def set_push_status_failed(
@@ -271,6 +271,7 @@ class DonationAction(HttpMethods):
         order_uri: str = None,
         transaction_uri: str = None,
         action_fields: dict = None,
+        trans_id: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -285,6 +286,7 @@ class DonationAction(HttpMethods):
             order_uri,
             transaction_uri,
             action_fields,
+            trans_id,
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
