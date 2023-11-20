@@ -12,6 +12,7 @@ class RecurringPaymentPush(HttpMethods):
         failure_code=None,
         failure_message=None,
         failure_description=None,
+        trans_id=None,
         **kwargs,
     ):
         """
@@ -28,6 +29,7 @@ class RecurringPaymentPush(HttpMethods):
                 failure_code=failure_code,
                 failure_message=failure_message,
                 failure_description=failure_description,
+                trans_id=trans_id,
                 **kwargs,
             )
         )
