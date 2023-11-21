@@ -127,7 +127,7 @@ class DonationAction(HttpMethods):
         order_uri: str = None,
         transaction_uri: str = None,
         action_fields: dict = None,
-        trans_id: str = None,
+        **kwargs,
     ):
         """
         Sets the donation, order, and transaction status for an existing donationpush action
@@ -193,8 +193,9 @@ class DonationAction(HttpMethods):
             # if it is passed in
             transaction_payload = status_payload.copy()
 
-            if trans_id:
-                transaction_payload['trans_id'] = trans_id
+            for key in ['failure_message', 'failure_description', 'trans_id']:
+                if key in kwargs and kwargs[key] is not None:
+                    transaction_payload[key] = kwargs[key]
 
             self.connection.patch(transaction_uri, transaction_payload)
             if action_fields:
@@ -236,7 +237,7 @@ class DonationAction(HttpMethods):
             order_uri,
             transaction_uri,
             action_fields,
-            trans_id,
+            trans_id=trans_id,
         )
 
     def set_push_status_completed(
@@ -261,7 +262,7 @@ class DonationAction(HttpMethods):
             order_uri,
             transaction_uri,
             action_fields,
-            trans_id,
+            trans_id=trans_id,
         )
 
     def set_push_status_failed(
@@ -272,6 +273,8 @@ class DonationAction(HttpMethods):
         transaction_uri: str = None,
         action_fields: dict = None,
         trans_id: str = None,
+        failure_message: str = None,
+        failure_description: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -286,7 +289,9 @@ class DonationAction(HttpMethods):
             order_uri,
             transaction_uri,
             action_fields,
-            trans_id,
+            trans_id=trans_id,
+            failure_message=failure_message,
+            failure_description=failure_description,
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
