@@ -146,6 +146,12 @@ class DonationAction(HttpMethods):
         action_fields, if passed, will be used to update the action fields with the content of the
         current dictionary
 
+        kwargs can be one of:
+        trans_id: The payment provider's transaction id. Typically a subscription or single payment id
+        created_at: The time the payment or event occurred
+        failure_message: The payment provider's failure reason, if any
+        failure_description: The payment provider's failure description, if any
+
         Returns the resource_uri of the donationpush action
         """
         if not donationaction_data:
@@ -184,9 +190,16 @@ class DonationAction(HttpMethods):
                 f'Setting donationaction {resource_uri} status to {status}'
             )
             status_payload = {'status': status}
+
             # Set the donation action in ActionKit to the given status
             self.connection.patch(resource_uri, status_payload)
+
             # Set the corresponding order also to the given status
+            order_payload = status_payload.copy()
+
+            for key in ['created_at']:
+                if key in kwargs and kwargs[key] is not None:
+                    order_payload[key] = kwargs[key]
             self.connection.patch(order_uri, status_payload)
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
@@ -196,8 +209,8 @@ class DonationAction(HttpMethods):
             for key in ['failure_message', 'failure_description', 'trans_id']:
                 if key in kwargs and kwargs[key] is not None:
                     transaction_payload[key] = kwargs[key]
-
             self.connection.patch(transaction_uri, transaction_payload)
+
             if action_fields:
                 # Update the action fields, preserving what was there before
                 base_action_fields.update(action_fields)
@@ -248,6 +261,7 @@ class DonationAction(HttpMethods):
         transaction_uri: str = None,
         action_fields: dict = None,
         trans_id: str = None,
+        created_at: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -263,6 +277,7 @@ class DonationAction(HttpMethods):
             transaction_uri,
             action_fields,
             trans_id=trans_id,
+            created_at=created_at,
         )
 
     def set_push_status_failed(
@@ -275,6 +290,7 @@ class DonationAction(HttpMethods):
         trans_id: str = None,
         failure_message: str = None,
         failure_description: str = None,
+        created_at: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -292,6 +308,7 @@ class DonationAction(HttpMethods):
             trans_id=trans_id,
             failure_message=failure_message,
             failure_description=failure_description,
+            created_at=created_at,
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
