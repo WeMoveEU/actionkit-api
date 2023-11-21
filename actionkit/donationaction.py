@@ -194,13 +194,6 @@ class DonationAction(HttpMethods):
             transaction_uri = uris['transaction_uri']
             base_action_fields = donationaction_data.get('fields', {})
 
-            # check to see if the status we want to set is already set
-            if donationaction_data['order']['status'] == status:
-                self.logger.debug(
-                    f'Donationaction {resource_uri} already set to {status}. No update required'
-                )
-                return resource_uri
-
         try:
             self.logger.debug(
                 f'Setting donationaction {resource_uri} status to {status}'

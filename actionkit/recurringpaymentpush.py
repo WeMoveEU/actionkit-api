@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from .ak_formats import datetime_to_ak_isoformat
 from .httpmethods import HttpMethods
 
 
@@ -48,7 +47,9 @@ class RecurringPaymentPush(HttpMethods):
                 failure_message=failure_message,
                 failure_description=failure_description,
                 trans_id=trans_id,
-                created_at=datetime_to_ak_isoformat(created_at) if created_at else None,
+                created_at=(
+                    datetime_to_stripped_isoformat(created_at) if created_at else None
+                ),
                 **kwargs,
             )
         )
