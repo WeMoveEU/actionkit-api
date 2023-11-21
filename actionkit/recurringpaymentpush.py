@@ -24,6 +24,10 @@ class RecurringPaymentPush(HttpMethods):
         Registers a recurring payment connected to the given order_id
         """
         self.logger.debug(f'Pushing recurring payment for order_id {order_id}')
+
+        if created_at:
+            self.logger.warning('Currently, created_at is not supported by ActionKit.')
+
         return self.post(
             dict(
                 order_id=order_id,
@@ -33,7 +37,7 @@ class RecurringPaymentPush(HttpMethods):
                 failure_message=failure_message,
                 failure_description=failure_description,
                 trans_id=trans_id,
-                created_at=created_at.isoformat() if created_at else None,
+                # created_at=created_at.isoformat() if created_at else None,
                 **kwargs,
             )
         )
