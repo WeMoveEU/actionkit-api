@@ -1,6 +1,20 @@
 from datetime import datetime
 
+from .ak_formats import datetime_to_ak_isoformat
 from .httpmethods import HttpMethods
+
+
+def datetime_to_stripped_isoformat(dt: datetime) -> str:
+    """
+    ActionKit does not support the timezone-aware part of the ISO 8601 standard when it comes to
+    expressing datetimes for this endpoint. A big has been filed with ActionKit to fix this.
+
+    In the meantime, this function strips away the timezone info at the end if present. This allows
+    the datetime expression to pass for recurringpaymentpush requests.
+    """
+    iso_datetime = dt.isoformat()
+    tokens = iso_datetime.split('+')
+    return tokens[0] if len(tokens) > 1 else iso_datetime
 
 
 class RecurringPaymentPush(HttpMethods):
@@ -25,9 +39,6 @@ class RecurringPaymentPush(HttpMethods):
         """
         self.logger.debug(f'Pushing recurring payment for order_id {order_id}')
 
-        if created_at:
-            self.logger.warning('Currently, created_at is not supported by ActionKit.')
-
         return self.post(
             dict(
                 order_id=order_id,
@@ -37,7 +48,7 @@ class RecurringPaymentPush(HttpMethods):
                 failure_message=failure_message,
                 failure_description=failure_description,
                 trans_id=trans_id,
-                # created_at=created_at.isoformat() if created_at else None,
+                created_at=datetime_to_ak_isoformat(created_at) if created_at else None,
                 **kwargs,
             )
         )
