@@ -253,6 +253,7 @@ class DonationAction(HttpMethods):
         transaction_uri: str = None,
         action_fields: dict = None,
         trans_id: str = None,
+        created_at: datetime = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -268,6 +269,7 @@ class DonationAction(HttpMethods):
             transaction_uri,
             action_fields,
             trans_id=trans_id,
+            created_at=created_at,
         )
 
     def set_push_status_completed(
