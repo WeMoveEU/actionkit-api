@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .httpmethods import HttpMethods
 
 
@@ -13,6 +15,7 @@ class RecurringPaymentPush(HttpMethods):
         failure_message=None,
         failure_description=None,
         trans_id=None,
+        created_at: datetime = None,
         **kwargs,
     ):
         """
@@ -30,6 +33,7 @@ class RecurringPaymentPush(HttpMethods):
                 failure_message=failure_message,
                 failure_description=failure_description,
                 trans_id=trans_id,
+                created_at=created_at.isoformat() if created_at else None,
                 **kwargs,
             )
         )
