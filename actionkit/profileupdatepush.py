@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from .httpmethods import HttpMethods
@@ -12,6 +13,7 @@ class ProfileUpdatePush(HttpMethods):
         amount: Decimal,
         currency: str,  # actionkit defaults to USD if currency is not provided
         trans_id: str = None,
+        created_at: datetime = None,
         **kwargs,
     ):
         """
@@ -26,6 +28,7 @@ class ProfileUpdatePush(HttpMethods):
                 amount=str(amount),
                 currency=currency.upper(),
                 trans_id=trans_id,
+                created_at=created_at.isoformat() if created_at else None,
                 **kwargs,
             )
         )
