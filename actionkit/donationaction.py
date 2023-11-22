@@ -142,6 +142,7 @@ class DonationAction(HttpMethods):
         transaction_uri: str = None,
         action_fields: dict = None,
         created_at: datetime = None,
+        no_action_if_status_is_already_set: bool = False,
         **kwargs,
     ):
         """
@@ -162,6 +163,9 @@ class DonationAction(HttpMethods):
         current dictionary
 
         created_at, if passed indicates the time the payment or event occurred
+
+        no_action_if_status_is_already_set, if True, will result in this method not making any
+        requests if status is already the same as what was passed in
 
         kwargs can be one of:
         trans_id: The payment provider's transaction id. Typically a subscription or single payment id
@@ -193,6 +197,15 @@ class DonationAction(HttpMethods):
             order_uri = uris['order_uri']
             transaction_uri = uris['transaction_uri']
             base_action_fields = donationaction_data.get('fields', {})
+
+        if (
+            no_action_if_status_is_already_set
+            and donationaction_data['status'] == status
+        ):
+            self.logger.debug(
+                f'donationaction status is already {status}. Skipping update.'
+            )
+            return resource_uri
 
         try:
             self.logger.debug(
@@ -290,6 +303,8 @@ class DonationAction(HttpMethods):
             action_fields,
             trans_id=trans_id,
             created_at=created_at,
+            # Ensure no changes are made if the status is already set to completed
+            no_action_if_status_is_already_set=True,
         )
 
     def set_push_status_failed(
