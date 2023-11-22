@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .httpmethods import HttpMethods
 
 
@@ -8,6 +10,7 @@ class ProfileCancelPush(HttpMethods):
         self,
         order_id,
         canceled_by='processor',
+        created_at: datetime = None,
         **kwargs,
     ):
         """
@@ -22,6 +25,7 @@ class ProfileCancelPush(HttpMethods):
             dict(
                 order_id=order_id,
                 canceled_by=canceled_by,
+                created_at=created_at.isoformat() if created_at else None,
                 **kwargs,
             )
         )
