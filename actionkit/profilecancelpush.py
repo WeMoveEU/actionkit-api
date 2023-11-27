@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from .httpmethods import HttpMethods
+from .utils import datetime_to_stripped_isoformat
 
 
 class ProfileCancelPush(HttpMethods):
@@ -25,7 +26,9 @@ class ProfileCancelPush(HttpMethods):
             dict(
                 order_id=order_id,
                 canceled_by=canceled_by,
-                created_at=created_at.isoformat() if created_at else None,
+                created_at=(
+                    datetime_to_stripped_isoformat(created_at) if created_at else None
+                ),
                 **kwargs,
             )
         )
