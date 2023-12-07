@@ -232,7 +232,7 @@ class DonationAction(HttpMethods):
                         'recurring_period': 'months',
                     }
                 )
-            self.connection.patch(order_uri, status_payload)
+            self.connection.patch(order_uri, order_payload)
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
             # if it is passed in
