@@ -143,6 +143,7 @@ class DonationAction(HttpMethods):
         action_fields: dict = None,
         created_at: datetime = None,
         no_action_if_status_is_already_set: bool = False,
+        recurring_id: str = None,
         **kwargs,
     ):
         """
@@ -223,6 +224,14 @@ class DonationAction(HttpMethods):
                 # fmt: off
                 order_payload['created_at'] = created_at.astimezone(tz=timezone.utc).isoformat()
                 # fmt: on
+
+            if recurring_id:
+                order_payload.update(
+                    {
+                        'recurring_id': recurring_id,
+                        'recurring_period': 'months',
+                    }
+                )
             self.connection.patch(order_uri, status_payload)
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
@@ -260,6 +269,7 @@ class DonationAction(HttpMethods):
         action_fields: dict = None,
         trans_id: str = None,
         created_at: datetime = None,
+        recurring_id: str = None,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -276,6 +286,7 @@ class DonationAction(HttpMethods):
             action_fields,
             trans_id=trans_id,
             created_at=created_at,
+            reccuring_id=recurring_id,
         )
 
     def set_push_status_completed(
