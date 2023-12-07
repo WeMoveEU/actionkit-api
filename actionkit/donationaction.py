@@ -197,6 +197,7 @@ class DonationAction(HttpMethods):
             resource_uri = uris['resource_uri']
             order_uri = uris['order_uri']
             transaction_uri = uris['transaction_uri']
+            orderrecurring_uris = uris['orderrecurring_uris']
             base_action_fields = donationaction_data.get('fields', {})
 
         if (
@@ -225,13 +226,6 @@ class DonationAction(HttpMethods):
                 order_payload['created_at'] = created_at.astimezone(tz=timezone.utc).isoformat()
                 # fmt: on
 
-            if recurring_id:
-                order_payload.update(
-                    {
-                        'recurring_id': recurring_id,
-                        'recurring_period': 'months',
-                    }
-                )
             self.connection.patch(order_uri, order_payload)
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
@@ -243,6 +237,7 @@ class DonationAction(HttpMethods):
                     transaction_payload[key] = kwargs[key]
             self.connection.patch(transaction_uri, transaction_payload)
 
+            # Update the action fields if they are passed in
             if action_fields:
                 # Update the action fields, preserving what was there before
                 base_action_fields.update(action_fields)
@@ -252,6 +247,17 @@ class DonationAction(HttpMethods):
                         'fields': base_action_fields,
                     },
                 )
+
+            # Set the recurring_id if it is passed in
+            if recurring_id and orderrecurring_uris:
+                # We only set this when the donation is new so we can just reference the first
+                # orderrecurring uri for the update
+                self.connection.patch(orderrecurring_uris[0], {
+                    'recurring_id': recurring_id,
+                    'recurring_period': 'months',
+                })
+
+
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
@@ -422,4 +428,5 @@ class DonationAction(HttpMethods):
             resource_uri=donationaction_data['resource_uri'],
             order_uri=donationaction_data['order']['resource_uri'],
             transaction_uri=donationaction_data['order']['transactions'][0],
+            orderrecurring_uris=donationaction_data['order']['orderrecurrings']
         )
