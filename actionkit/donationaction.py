@@ -286,7 +286,7 @@ class DonationAction(HttpMethods):
             action_fields,
             trans_id=trans_id,
             created_at=created_at,
-            reccuring_id=recurring_id,
+            recurring_id=recurring_id,
         )
 
     def set_push_status_completed(
