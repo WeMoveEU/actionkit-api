@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from .httpmethods import HttpMethods
+from .validation import convert_datetime_to_utc, validate_datetime_is_timezone_aware
 
 
 class ProfileUpdatePush(HttpMethods):
@@ -21,14 +22,18 @@ class ProfileUpdatePush(HttpMethods):
 
         Updates an existing recurring payment profile connected to the given order_id
         """
-        self.logger.debug(f'Updating recurring payment profile for order_id {order_id}')
-        return self.post(
-            dict(
-                order_id=order_id,
-                amount=str(amount),
-                currency=currency.upper(),
-                trans_id=trans_id,
-                created_at=created_at.isoformat() if created_at else None,
-                **kwargs,
-            )
+        payload = dict(
+            order_id=order_id,
+            amount=str(amount),
+            currency=currency.upper(),
+            trans_id=trans_id,
+            **kwargs,
         )
+
+        # Validate and convert datetime as necessary
+        if created_at:
+            validate_datetime_is_timezone_aware(created_at)
+            payload['created_at'] = convert_datetime_to_utc(created_at)
+
+        self.logger.debug(f'Updating recurring payment profile for order_id {order_id}')
+        return self.post(payload)
