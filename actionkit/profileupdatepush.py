@@ -34,7 +34,7 @@ class ProfileUpdatePush(HttpMethods):
         # Validate and convert datetime as necessary
         if created_at:
             validate_datetime_is_timezone_aware(created_at)
-            payload['created_at'] = convert_datetime_to_utc(created_at)
+            payload['created_at'] = convert_datetime_to_utc(created_at).isoformat()
 
         self.logger.debug(f'Updating recurring payment profile for order_id {order_id}')
         return self.post(payload)
