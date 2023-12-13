@@ -2,7 +2,8 @@ from datetime import datetime
 from decimal import Decimal
 
 from .httpmethods import HttpMethods
-from .validation import convert_datetime_to_utc, validate_datetime_is_timezone_aware
+from .utils import convert_datetime_to_utc
+from .validation import validate_datetime_is_timezone_aware
 
 
 class ProfileUpdatePush(HttpMethods):
