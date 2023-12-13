@@ -39,10 +39,11 @@ class RecurringPaymentPush(HttpMethods):
         # Validate and convert datetime as necessary
         if created_at:
             validate_datetime_is_timezone_aware(created_at)
-            created_at = convert_datetime_to_utc(created_at)
-            # TODO: Do not strip timezone info once ActionKit fixes the bug
-            payload['created_at'] = datetime_to_stripped_isoformat(created_at)
+            # TODO: Remove datetime_to_stripped_isoformat wrapper function once ActionKit fixes the bug
+            payload['created_at'] = datetime_to_stripped_isoformat(
+                convert_datetime_to_utc(created_at)
+            )
 
         self.logger.debug(f'Pushing recurring payment for order_id {order_id}')
 
-        return self.post()
+        return self.post(payload)
