@@ -2,6 +2,7 @@ from datetime import datetime
 
 from .httpmethods import HttpMethods
 from .utils import datetime_to_stripped_isoformat
+from .validation import convert_datetime_to_utc, validate_datetime_is_timezone_aware
 
 
 class RecurringPaymentPush(HttpMethods):
@@ -24,20 +25,24 @@ class RecurringPaymentPush(HttpMethods):
 
         Registers a recurring payment connected to the given order_id
         """
+        payload = dict(
+            order_id=order_id,
+            success=success,
+            status=status,
+            failure_code=failure_code,
+            failure_message=failure_message,
+            failure_description=failure_description,
+            trans_id=trans_id,
+            **kwargs,
+        )
+
+        # Validate and convert datetime as necessary
+        if created_at:
+            validate_datetime_is_timezone_aware(created_at)
+            created_at = convert_datetime_to_utc(created_at)
+            # TODO: Do not strip timezone info once ActionKit fixes the bug
+            payload['created_at'] = datetime_to_stripped_isoformat(created_at)
+
         self.logger.debug(f'Pushing recurring payment for order_id {order_id}')
 
-        return self.post(
-            dict(
-                order_id=order_id,
-                success=success,
-                status=status,
-                failure_code=failure_code,
-                failure_message=failure_message,
-                failure_description=failure_description,
-                trans_id=trans_id,
-                created_at=(
-                    datetime_to_stripped_isoformat(created_at) if created_at else None
-                ),
-                **kwargs,
-            )
-        )
+        return self.post()
