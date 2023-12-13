@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def convert_datetime_to_utc(dt: datetime) -> datetime:
     """
     Converts a timezone-aware datetime to UTC.
     """
-    return dt.astimezone(tz=datetime.timezone.utc)
+    return dt.astimezone(tz=timezone.utc)
 
 
 def datetime_to_stripped_isoformat(dt: datetime) -> str:
