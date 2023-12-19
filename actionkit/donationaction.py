@@ -26,6 +26,7 @@ class DonationAction(HttpMethods):
         action_fields: dict = {},
         is_recurring: bool = False,
         created_at: datetime = None,
+        skip_confirmation: bool = False,
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
@@ -66,8 +67,14 @@ class DonationAction(HttpMethods):
             donationpage=dict(name=page),
         )
 
+        # Define action info if needed
+        action = {}
         if action_fields:
-            payload['action'] = {'fields': action_fields}
+            action['fields'] = action_fields
+        if skip_confirmation:
+            action['skip_confirmation'] = '1'
+        if action:
+            payload['action'] = action
 
         if is_recurring:
             # https://action.wemove.eu/docs/manual/api/rest/donationpush.html#recurring-profiles
@@ -107,6 +114,7 @@ class DonationAction(HttpMethods):
         action_fields: dict = {},
         is_recurring: bool = False,
         created_at: datetime = None,
+        skip_confirmation: bool = False,
     ):
         """
         Convenience method that creates a new donation action then sets it to incomplete
@@ -127,6 +135,7 @@ class DonationAction(HttpMethods):
             action_fields,
             is_recurring,
             created_at,
+            skip_confirmation
         )
         data = response.json()
         # TODO: Do this async?
