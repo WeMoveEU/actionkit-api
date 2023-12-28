@@ -29,15 +29,15 @@ class Users(HttpMethods):
         else:
             raise Exception(f"{uri} is not a user URI")
 
-    def get_by_akid(self, akid, secure=True):
+    def get_by_akid(self, akid, limited=True):
         """
         Returns user info for a given akid.
-        If secure is False, all of the user's data is returned
+        If limited is False, all of the user's data is returned
         """
         match = re.match(r'^\.(?P<user_id>\d+)\..+$', akid)
         if match:
             user = self.get(self.uri(match.group('user_id')))
-            if secure:
+            if limited:
                 return {k: user[k] for k in ['first_name', 'last_name', 'email']}
             return user
         raise ValueError(f"Invalid akid: {akid}")
