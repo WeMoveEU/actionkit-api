@@ -2,6 +2,7 @@ import re
 
 from .httpmethods import HttpMethods
 
+
 class Users(HttpMethods):
     resource_name = "user"
 
@@ -27,3 +28,16 @@ class Users(HttpMethods):
             return m[1]
         else:
             raise Exception(f"{uri} is not a user URI")
+
+    def get_by_akid(self, akid, secure=True):
+        """
+        Returns user info for a given akid.
+        If secure is False, all of the user's data is returned
+        """
+        match = re.match(r'^\.(?P<user_id>\d+)\..+$', akid)
+        if match:
+            user = self.get(self.uri(match.group('user_id')))
+            if secure:
+                return {k: user[k] for k in ['first_name', 'last_name', 'email']}
+            return user
+        raise ValueError(f"Invalid akid: {akid}")
