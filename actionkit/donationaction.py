@@ -52,7 +52,7 @@ class DonationAction(HttpMethods):
             order=order,
             user=dict(
                 # Only supply actionkit with the email if the akid is not passed in
-                email=email if not akid else None,
+                email=email,
                 akid=akid,
                 first_name=first_name,
                 last_name=last_name,
