@@ -14,7 +14,6 @@ class DonationAction(HttpMethods):
     def push(
         self,
         email: str,
-        akid: str,
         first_name: str,
         last_name: str,
         country: str,
@@ -27,6 +26,7 @@ class DonationAction(HttpMethods):
         is_recurring: bool = False,
         created_at: datetime = None,
         skip_confirmation: bool = False,
+        akid: str = None
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
@@ -52,7 +52,7 @@ class DonationAction(HttpMethods):
             order=order,
             user=dict(
                 # Only supply actionkit with the email if the akid is not passed in
-                email=email if not akid else None,
+                email=email,
                 akid=akid,
                 first_name=first_name,
                 last_name=last_name,
@@ -102,7 +102,6 @@ class DonationAction(HttpMethods):
     def push_and_set_incomplete(
         self,
         email: str,
-        akid: str,
         first_name: str,
         last_name: str,
         country: str,
@@ -115,6 +114,7 @@ class DonationAction(HttpMethods):
         is_recurring: bool = False,
         created_at: datetime = None,
         skip_confirmation: bool = False,
+        akid: str = None
     ):
         """
         Convenience method that creates a new donation action then sets it to incomplete
@@ -123,7 +123,6 @@ class DonationAction(HttpMethods):
         """
         response = self.push(
             email,
-            akid,
             first_name,
             last_name,
             country,
@@ -135,7 +134,8 @@ class DonationAction(HttpMethods):
             action_fields,
             is_recurring,
             created_at,
-            skip_confirmation
+            skip_confirmation,
+            akid
         )
         data = response.json()
         # TODO: Do this async?
