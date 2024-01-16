@@ -87,7 +87,7 @@ class Transactions(HttpMethods):
 
         payload = dict(
             account=account,
-            amount=amount,
+            amount=str(amount),
             currency=currency,
             type=type,
             order=order_uri,
