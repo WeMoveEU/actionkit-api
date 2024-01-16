@@ -4,6 +4,9 @@ from os import path
 from requests import HTTPError
 
 from .httpmethods import HttpMethods
+from .orders import Orders
+
+TRANSACTION_TYPES = ['sale', 'refund', 'credit']
 
 
 class Transactions(HttpMethods):
@@ -44,9 +47,16 @@ class Transactions(HttpMethods):
         return None
 
     def create(
-        self, account: str, amount: Decimal, currency: str, order: str, type: str
+        self,
+        account: str,
+        amount: Decimal,
+        currency: str,
+        order_uri: str = None,
+        order_id: str = None,
+        type: str = 'sale',
     ):
         """
+        Create a new transaction and associate it with an order
         {
             'account': 'WM-Card',
             'amount': '5.00',
@@ -67,3 +77,20 @@ class Transactions(HttpMethods):
             'updated_at': '2024-01-15T18:14:40.756863'
         }
         """
+        if not (order_uri or order_id):
+            raise ValueError('Either order_uri or order_id must be provided')
+
+        if not type in TRANSACTION_TYPES:
+            raise ValueError('Transaction type must be one of sale, refund, or credit')
+
+        order_uri = order_uri or Orders.get_resource_uri_from_id(order_id)
+
+        payload = dict(
+            account=account,
+            amount=amount,
+            currency=currency,
+            type=type,
+            order=order_uri,
+        )
+
+        return self.post(json=payload)
