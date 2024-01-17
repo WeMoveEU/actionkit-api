@@ -101,3 +101,9 @@ class HttpMethods:
         Wrapper to the internal Connection.get_resource_uri_id_from_response method
         """
         return self.connection.get_resource_uri_id_from_response(response)
+
+    def get_by_id(self, id, *args, **params):
+        """
+        Get an object by its id from ActionKit
+        """
+        return self.get(*args, resource_uri=f'{self.resource_name}/{id}', params=params)

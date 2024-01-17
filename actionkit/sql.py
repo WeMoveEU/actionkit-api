@@ -33,3 +33,35 @@ class SQL(HttpMethods):
                 **values,
             ),
         )
+
+    def run_query(self, query: str = '', **values: dict):
+        """
+        Runs an arbitrary SQL query against the ActionKit database.
+        Returns the json results as a list.
+
+        For reference see:
+        https://action.wemove.eu/docs/manual/api/rest/reports.html#running-an-ad-hoc-query
+        """
+        response = self._run_query(query, **values)
+        return response.json()
+
+    def fetch_transaction_id_by_trans_id(self, trans_id: str) -> dict:
+        """
+        Fetches a transaction record id by associated trans_id. Currently unsupported functionality
+        by ActionKit API transaction endpoint queries, so we need to run a custom query. If it gets
+        supported in the future, we can do the same with a get?trans_id=<value> query on the
+        transaction endpoint.
+        """
+        query = """
+            SELECT id
+            FROM core_transaction
+            WHERE trans_id = {{ trans_id }}
+        """
+        results = self.run_query(query, trans_id=trans_id)
+        if results:
+            if len(results) > 1:
+                self.connection.logger.warning(
+                    f'More than 1 result found for trans_id {trans_id} in transaction table'
+                )
+            return results[0][0]
+        return None
