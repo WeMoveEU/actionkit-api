@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from .httpmethods import HttpMethods
-from .utils import convert_datetime_to_utc
+from .utils import convert_datetime_to_utc, datetime_to_stripped_isoformat
 from .validation import validate_datetime_is_timezone_aware
 
 
@@ -34,7 +34,11 @@ class ProfileUpdatePush(HttpMethods):
         # Validate and convert datetime as necessary
         if created_at:
             validate_datetime_is_timezone_aware(created_at)
-            payload['created_at'] = convert_datetime_to_utc(created_at).isoformat()
+            # TODO: Replace the below line with this commented out one once ActionKit fixes the bug
+            # payload['created_at'] = convert_datetime_to_utc(created_at).isoformat()
+            payload['created_at'] = datetime_to_stripped_isoformat(
+                convert_datetime_to_utc(created_at)
+            )
 
         self.logger.debug(f'Updating recurring payment profile for order_id {order_id}')
         return self.post(payload)
