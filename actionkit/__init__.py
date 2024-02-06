@@ -5,7 +5,7 @@ from .campaigns import Campaigns
 from .connection import Connection
 from .donationaction import DonationAction
 from .donationpages import DonationPages
-from .eventsignups import EventSignups
+from .genericactions import GenericActions
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
@@ -69,7 +69,7 @@ class ActionKit:
         self.Transactions = Transactions(self.connection)
         self.SignupPages = SignupPages(self.connection)
         self.SignupActions = SignupActions(self.connection)
-        self.EventSignups = EventSignups(self.connection)
+        self.GenericActions = GenericActions(self.connection)
 
     @staticmethod
     def get_resource_uri(response):
