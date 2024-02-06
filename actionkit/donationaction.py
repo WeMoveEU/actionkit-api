@@ -51,7 +51,6 @@ class DonationAction(HttpMethods):
         payload = dict(
             order=order,
             user=dict(
-                # Only supply actionkit with the email if the akid is not passed in
                 email=email,
                 akid=akid,
                 first_name=first_name,

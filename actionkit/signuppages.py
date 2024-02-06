@@ -1,5 +1,5 @@
 from .httpmethods import HttpMethods
 
 
-class SignpuPages(HttpMethods):
+class SignupPages(HttpMethods):
     resource_name = "signuppage"

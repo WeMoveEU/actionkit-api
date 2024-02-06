@@ -15,6 +15,7 @@ from .petitions import Petitions
 from .profilecancelpush import ProfileCancelPush
 from .profileupdatepush import ProfileUpdatePush
 from .recurringpaymentpush import RecurringPaymentPush
+from .signupactions import SignupActions
 from .signuppages import SignupPages
 from .sql import SQL
 from .transactions import Transactions
@@ -66,6 +67,7 @@ class ActionKit:
         self.SQL = SQL(self.connection)
         self.Transactions = Transactions(self.connection)
         self.SignupPages = SignupPages(self.connection)
+        self.SignupActions = SignupActions(self.connection)
 
     @staticmethod
     def get_resource_uri(response):
