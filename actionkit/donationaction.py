@@ -22,7 +22,7 @@ class DonationAction(HttpMethods):
         currency: str = None,
         page: str = None,
         payment_account: str = None,
-        action_fields: dict = {},
+        custom_action_fields: dict = {},
         is_recurring: bool = False,
         created_at: datetime = None,
         skip_confirmation: bool = False,
@@ -35,7 +35,17 @@ class DonationAction(HttpMethods):
 
         https://action.wemove.eu/docs/manual/api/rest/donationpush.html
         """
-        for required in ['email', 'first_name', 'last_name', 'country', 'postal', 'amount', 'currency', 'page', 'payment_account']:
+        for required in [
+            'email',
+            'first_name',
+            'last_name',
+            'country',
+            'postal',
+            'amount',
+            'currency',
+            'page',
+            'payment_account',
+        ]:
             if not locals()[required]:
                 raise ValueError(f'{required} must be provided')
 
@@ -47,7 +57,7 @@ class DonationAction(HttpMethods):
             exp_date_month='12',
             exp_date_year='9999',
             payment_account=payment_account,
-            trans_id=trans_id
+            trans_id=trans_id,
         )
 
         if created_at:
@@ -74,8 +84,8 @@ class DonationAction(HttpMethods):
 
         # Define action info if needed
         action = {}
-        if action_fields:
-            action['fields'] = action_fields
+        if custom_action_fields:
+            action['fields'] = custom_action_fields
         if skip_confirmation:
             action['skip_confirmation'] = '1'
         if action:
@@ -115,11 +125,11 @@ class DonationAction(HttpMethods):
         currency: str,
         page: str,
         payment_account: str,
-        action_fields: dict = {},
+        custom_action_fields: dict = {},
         is_recurring: bool = False,
         created_at: datetime = None,
         skip_confirmation: bool = False,
-        akid: str = None
+        akid: str = None,
     ):
         """
         Convenience method that creates a new donation action then sets it to incomplete
@@ -136,11 +146,11 @@ class DonationAction(HttpMethods):
             currency,
             page,
             payment_account,
-            action_fields,
+            custom_action_fields,
             is_recurring,
             created_at,
             skip_confirmation,
-            akid
+            akid,
         )
         data = response.json()
         # TODO: Do this async?
@@ -154,7 +164,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        action_fields: dict = None,
+        custom_action_fields: dict = None,
         created_at: datetime = None,
         no_action_if_status_is_already_set: bool = False,
         recurring_id: str = None,
@@ -174,7 +184,7 @@ class DonationAction(HttpMethods):
         Note that if you just specify the resource_uri, it will generate an additional request to
         look up the rest of the data from ActionKit.
 
-        action_fields, if passed, will be used to update the action fields with the content of the
+        custom_action_fields, if passed, will be used to update the action fields with the content of the
         current dictionary
 
         created_at, if passed indicates the time the payment or event occurred
@@ -252,9 +262,9 @@ class DonationAction(HttpMethods):
             self.connection.patch(transaction_uri, transaction_payload)
 
             # Update the action fields if they are passed in
-            if action_fields:
+            if custom_action_fields:
                 # Update the action fields, preserving what was there before
-                base_action_fields.update(action_fields)
+                base_action_fields.update(custom_action_fields)
                 self.connection.patch(
                     resource_uri,
                     {
@@ -266,11 +276,13 @@ class DonationAction(HttpMethods):
             if recurring_id and orderrecurring_uris:
                 # We only set this when the donation is new so we can just reference the first
                 # orderrecurring uri for the update
-                self.connection.patch(orderrecurring_uris[0], {
-                    'recurring_id': recurring_id,
-                    'recurring_period': 'months',
-                })
-
+                self.connection.patch(
+                    orderrecurring_uris[0],
+                    {
+                        'recurring_id': recurring_id,
+                        'recurring_period': 'months',
+                    },
+                )
 
         except HTTPError as e:
             if e.response.status_code == 400:
@@ -286,7 +298,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        action_fields: dict = None,
+        custom_action_fields: dict = None,
         trans_id: str = None,
         created_at: datetime = None,
         recurring_id: str = None,
@@ -303,7 +315,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
-            action_fields,
+            custom_action_fields,
             trans_id=trans_id,
             created_at=created_at,
             recurring_id=recurring_id,
@@ -315,7 +327,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        action_fields: dict = None,
+        custom_action_fields: dict = None,
         trans_id: str = None,
         created_at: datetime = None,
     ):
@@ -331,7 +343,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
-            action_fields,
+            custom_action_fields,
             trans_id=trans_id,
             created_at=created_at,
             # Ensure no changes are made if the status is already set to completed
@@ -344,7 +356,7 @@ class DonationAction(HttpMethods):
         resource_uri: str = None,
         order_uri: str = None,
         transaction_uri: str = None,
-        action_fields: dict = None,
+        custom_action_fields: dict = None,
         trans_id: str = None,
         failure_message: str = None,
         failure_description: str = None,
@@ -362,7 +374,7 @@ class DonationAction(HttpMethods):
             resource_uri,
             order_uri,
             transaction_uri,
-            action_fields,
+            custom_action_fields,
             trans_id=trans_id,
             failure_message=failure_message,
             failure_description=failure_description,
@@ -442,5 +454,5 @@ class DonationAction(HttpMethods):
             resource_uri=donationaction_data['resource_uri'],
             order_uri=donationaction_data['order']['resource_uri'],
             transaction_uri=donationaction_data['order']['transactions'][0],
-            orderrecurring_uris=donationaction_data['order']['orderrecurrings']
+            orderrecurring_uris=donationaction_data['order']['orderrecurrings'],
         )
