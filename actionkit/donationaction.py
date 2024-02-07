@@ -13,20 +13,21 @@ class DonationAction(HttpMethods):
 
     def push(
         self,
-        email: str,
-        first_name: str,
-        last_name: str,
-        country: str,
-        postal: str,
-        amount: Decimal,
-        currency: str,
-        page: str,
-        payment_account: str,
+        email: str = None,
+        first_name: str = None,
+        last_name: str = None,
+        country: str = None,
+        postal: str = None,
+        amount: Decimal = None,
+        currency: str = None,
+        page: str = None,
+        payment_account: str = None,
         action_fields: dict = {},
         is_recurring: bool = False,
         created_at: datetime = None,
         skip_confirmation: bool = False,
-        akid: str = None
+        akid: str = None,
+        trans_id: str = None,
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
@@ -34,6 +35,10 @@ class DonationAction(HttpMethods):
 
         https://action.wemove.eu/docs/manual/api/rest/donationpush.html
         """
+        for required in ['email', 'first_name', 'last_name', 'country', 'postal', 'amount', 'currency', 'page', 'payment_account']:
+            if not locals()[required]:
+                raise ValueError(f'{required} must be provided')
+
         order = dict(
             card_num='4111111111111111',
             card_code='007',
@@ -42,6 +47,7 @@ class DonationAction(HttpMethods):
             exp_date_month='12',
             exp_date_year='9999',
             payment_account=payment_account,
+            trans_id=trans_id
         )
 
         if created_at:
