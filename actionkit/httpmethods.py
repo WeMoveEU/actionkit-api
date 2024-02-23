@@ -35,11 +35,16 @@ class HttpMethods:
                 raise Exception(f"Bad request for search(): {e.response.text}: {e}")
             raise
 
-    def delete(self, resource_uri: str, *args, **kwargs):
+    def delete(self, resource_uri: str, *args, ignore_404=True, **kwargs):
         """
         Generic delete method for ActionKit resources
         """
-        self.connection.delete(resource_uri, *args, **kwargs)
+        try:
+            self.connection.delete(resource_uri, *args, **kwargs)
+        except HTTPError as e:
+            if e.response.status_code == 404 and ignore_404:
+                return False
+            raise
         return True
 
     def get(self, resource_uri=None, *args, **params):
