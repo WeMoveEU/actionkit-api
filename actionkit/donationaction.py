@@ -37,8 +37,6 @@ class DonationAction(HttpMethods):
         """
         for required in [
             'email',
-            'first_name',
-            'last_name',
             'country',
             'postal',
             'amount',
