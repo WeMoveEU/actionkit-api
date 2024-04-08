@@ -5,6 +5,8 @@ from .campaigns import Campaigns
 from .connection import Connection
 from .donationaction import DonationAction
 from .donationpages import DonationPages
+from .genericactions import GenericActions
+from .genericpages import GenericPages
 from .groups import Groups
 from .languages import Languages
 from .lists import Lists
@@ -15,6 +17,8 @@ from .petitions import Petitions
 from .profilecancelpush import ProfileCancelPush
 from .profileupdatepush import ProfileUpdatePush
 from .recurringpaymentpush import RecurringPaymentPush
+from .signupactions import SignupActions
+from .signuppages import SignupPages
 from .sql import SQL
 from .transactions import Transactions
 from .uploads import Uploads
@@ -64,6 +68,10 @@ class ActionKit:
         self.ProfileUpdatePush = ProfileUpdatePush(self.connection)
         self.SQL = SQL(self.connection)
         self.Transactions = Transactions(self.connection)
+        self.SignupPages = SignupPages(self.connection)
+        self.SignupActions = SignupActions(self.connection)
+        self.GenericActions = GenericActions(self.connection)
+        self.GenericPages = GenericPages(self.connection)
 
     @staticmethod
     def get_resource_uri(response):
