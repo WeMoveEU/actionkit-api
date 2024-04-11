@@ -150,10 +150,51 @@ class DonationAction(HttpMethods):
             skip_confirmation,
             akid,
         )
-        data = response.json()
+        action = response.json()
         # TODO: Do this async?
-        self.set_push_status_incomplete(data)
-        return data['resource_uri']
+        self.set_push_status_incomplete(action)
+        return action['resource_uri']
+
+    def push_and_set_pending(
+        self,
+        email: str,
+        first_name: str,
+        last_name: str,
+        country: str,
+        postal: str,
+        amount: Decimal,
+        currency: str,
+        page: str,
+        payment_account: str,
+        custom_action_fields: dict = {},
+        is_recurring: bool = False,
+        created_at: datetime = None,
+        skip_confirmation: bool = False,
+        akid: str = None,
+    ):
+        """
+        Convenience method that creates a new donation action then sets it to pending.
+        Returns the response from the creation of the donationpush action
+        """
+        response = self.push(
+            email,
+            first_name,
+            last_name,
+            country,
+            postal,
+            amount,
+            currency,
+            page,
+            payment_account,
+            custom_action_fields,
+            is_recurring,
+            created_at,
+            skip_confirmation,
+            akid,
+        )
+        action = response.json()
+        self.set_push_status_pending(action)
+        return action
 
     def set_push_status(
         self,
@@ -381,6 +422,37 @@ class DonationAction(HttpMethods):
             failure_message=failure_message,
             failure_description=failure_description,
             created_at=created_at,
+        )
+
+    def set_push_status_pending(
+        self,
+        donationaction_data: dict = None,
+        resource_uri: str = None,
+        order_uri: str = None,
+        transaction_uri: str = None,
+        custom_action_fields: dict = None,
+        trans_id: str = None,
+        created_at: datetime = None,
+        recurring_id: str = None,
+    ):
+        """
+        Wrapper to set_push_status that sets the donation action to incomplete, and the order and
+        transaction status to pending
+
+        Returns the resource_uri of the donationpush action
+        """
+        return self.set_push_status(
+            'incomplete',
+            donationaction_data,
+            resource_uri,
+            order_uri,
+            transaction_uri,
+            custom_action_fields,
+            trans_id=trans_id,
+            created_at=created_at,
+            recurring_id=recurring_id,
+            order_status='pending',
+            transaction_status='pending',
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
