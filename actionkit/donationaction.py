@@ -157,7 +157,7 @@ class DonationAction(HttpMethods):
 
     def set_push_status(
         self,
-        status,
+        action_status,
         donationaction_data: dict = None,
         resource_uri: str = None,
         order_uri: str = None,
@@ -166,6 +166,8 @@ class DonationAction(HttpMethods):
         created_at: datetime = None,
         no_action_if_status_is_already_set: bool = False,
         recurring_id: str = None,
+        order_status: str = None,
+        transaction_status: str = None,
         **kwargs,
     ):
         """
@@ -224,24 +226,25 @@ class DonationAction(HttpMethods):
 
         if (
             no_action_if_status_is_already_set
-            and donationaction_data['status'] == status
+            and donationaction_data['status'] == action_status
         ):
             self.logger.debug(
-                f'donationaction status is already {status}. Skipping update.'
+                f'donationaction status is already {action_status}. Skipping update.'
             )
             return resource_uri
 
         try:
             self.logger.debug(
-                f'Setting donationaction {resource_uri} status to {status}'
+                f'Setting donationaction {resource_uri} status to {action_status}'
             )
-            status_payload = {'status': status}
+            action_payload = {'status': action_status}
 
             # Set the donation action in ActionKit to the given status
-            self.connection.patch(resource_uri, status_payload)
+            self.connection.patch(resource_uri, action_payload)
 
             # Set the corresponding order also to the given status
-            order_payload = status_payload.copy()
+            order_payload = action_payload.copy()
+            order_payload['status'] = order_status or action_status
 
             if created_at:
                 # fmt: off
@@ -252,7 +255,8 @@ class DonationAction(HttpMethods):
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
             # if it is passed in
-            transaction_payload = status_payload.copy()
+            transaction_payload = action_payload.copy()
+            transaction_payload['status'] = transaction_status or action_status
 
             for key in ['failure_message', 'failure_description', 'trans_id']:
                 if key in kwargs and kwargs[key] is not None:
@@ -285,7 +289,7 @@ class DonationAction(HttpMethods):
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
-                    f'Failed to set donationaction status "{status}":\n{e.response.text}: {e}'
+                    f'Failed to set donationaction status "{action_status}":\n{e.response.text}: {e}'
                 )
             raise
         return resource_uri
