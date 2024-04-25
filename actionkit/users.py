@@ -34,7 +34,9 @@ class Users(HttpMethods):
         Returns user info for a given akid.
         If limited is False, all of the user's data is returned
         """
-        match = re.match(r'^\.(?P<user_id>\d+)\..+$', akid)
+        match = re.match(
+            r'^(?P<mailing_id>\d+)?\.(?P<user_id>\d+)\.(?P<hash>.+)$', akid
+        )
         if match:
             user = self.get(self.uri(match.group('user_id')))
             if limited:
