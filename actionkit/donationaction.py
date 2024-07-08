@@ -150,14 +150,55 @@ class DonationAction(HttpMethods):
             skip_confirmation,
             akid,
         )
-        data = response.json()
+        action = response.json()
         # TODO: Do this async?
-        self.set_push_status_incomplete(data)
-        return data['resource_uri']
+        self.set_push_status_incomplete(action)
+        return action['resource_uri']
+
+    def push_and_set_pending(
+        self,
+        email: str,
+        first_name: str,
+        last_name: str,
+        country: str,
+        postal: str,
+        amount: Decimal,
+        currency: str,
+        page: str,
+        payment_account: str,
+        custom_action_fields: dict = {},
+        is_recurring: bool = False,
+        created_at: datetime = None,
+        skip_confirmation: bool = False,
+        akid: str = None,
+    ):
+        """
+        Convenience method that creates a new donation action then sets it to pending.
+        Returns the response from the creation of the donationpush action
+        """
+        response = self.push(
+            email,
+            first_name,
+            last_name,
+            country,
+            postal,
+            amount,
+            currency,
+            page,
+            payment_account,
+            custom_action_fields,
+            is_recurring,
+            created_at,
+            skip_confirmation,
+            akid,
+        )
+        action = response.json()
+        self.set_push_status_pending(action)
+        return action
 
     def set_push_status(
         self,
-        status,
+        action_status,
         donationaction_data: dict = None,
         resource_uri: str = None,
         order_uri: str = None,
@@ -166,6 +207,8 @@ class DonationAction(HttpMethods):
         created_at: datetime = None,
         no_action_if_status_is_already_set: bool = False,
         recurring_id: str = None,
+        order_status: str = None,
+        transaction_status: str = None,
         **kwargs,
     ):
         """
@@ -224,24 +267,25 @@ class DonationAction(HttpMethods):
 
         if (
             no_action_if_status_is_already_set
-            and donationaction_data['status'] == status
+            and donationaction_data['status'] == action_status
         ):
             self.logger.debug(
-                f'donationaction status is already {status}. Skipping update.'
+                f'donationaction status is already {action_status}. Skipping update.'
             )
             return resource_uri
 
         try:
             self.logger.debug(
-                f'Setting donationaction {resource_uri} status to {status}'
+                f'Setting donationaction {resource_uri} status to {action_status}'
             )
-            status_payload = {'status': status}
+            action_payload = {'status': action_status}
 
             # Set the donation action in ActionKit to the given status
-            self.connection.patch(resource_uri, status_payload)
+            self.connection.patch(resource_uri, action_payload)
 
             # Set the corresponding order also to the given status
-            order_payload = status_payload.copy()
+            order_payload = action_payload.copy()
+            order_payload['status'] = order_status or action_status
 
             if created_at:
                 # fmt: off
@@ -252,7 +296,8 @@ class DonationAction(HttpMethods):
 
             # Set the corresponding transaction to the given status, adding the merchant trans_id
             # if it is passed in
-            transaction_payload = status_payload.copy()
+            transaction_payload = action_payload.copy()
+            transaction_payload['status'] = transaction_status or action_status
 
             for key in ['failure_message', 'failure_description', 'trans_id']:
                 if key in kwargs and kwargs[key] is not None:
@@ -285,7 +330,7 @@ class DonationAction(HttpMethods):
         except HTTPError as e:
             if e.response.status_code == 400:
                 raise Exception(
-                    f'Failed to set donationaction status "{status}":\n{e.response.text}: {e}'
+                    f'Failed to set donationaction status "{action_status}":\n{e.response.text}: {e}'
                 )
             raise
         return resource_uri
@@ -377,6 +422,37 @@ class DonationAction(HttpMethods):
             failure_message=failure_message,
             failure_description=failure_description,
             created_at=created_at,
+        )
+
+    def set_push_status_pending(
+        self,
+        donationaction_data: dict = None,
+        resource_uri: str = None,
+        order_uri: str = None,
+        transaction_uri: str = None,
+        custom_action_fields: dict = None,
+        trans_id: str = None,
+        created_at: datetime = None,
+        recurring_id: str = None,
+    ):
+        """
+        Wrapper to set_push_status that sets the donation action to incomplete, and the order and
+        transaction status to pending
+
+        Returns the resource_uri of the donationpush action
+        """
+        return self.set_push_status(
+            'incomplete',
+            donationaction_data,
+            resource_uri,
+            order_uri,
+            transaction_uri,
+            custom_action_fields,
+            trans_id=trans_id,
+            created_at=created_at,
+            recurring_id=recurring_id,
+            order_status='pending',
+            transaction_status='pending',
         )
 
     def cancel_recurring_profile(self, recurring_id, canceled_by):
