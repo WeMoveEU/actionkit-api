@@ -11,6 +11,7 @@ class GenericActions(HttpMethods):
         resource_uri: str = None,
         resource_id: str = None,
         created_at: datetime = None,
+        fields: dict = {},
         **kwargs: dict,
     ) -> dict:
         """
@@ -21,8 +22,6 @@ class GenericActions(HttpMethods):
 
         if not resource_uri:
             resource_uri = self.get_resource_uri_from_id(resource_id)
-
-        fields = kwargs.pop('fields', {})
 
         payload = kwargs.copy()
 
