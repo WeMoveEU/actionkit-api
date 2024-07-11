@@ -1,13 +1,30 @@
+from os import path
+
 from .donationaction import DonationAction
 from .httpmethods import HttpMethods
 
 
 class SQL(HttpMethods):
-    resource_name = 'report/run/sql'
+    resource_name = 'report/run'
 
     def __init__(self, connection):
         self.donation_action = DonationAction(connection)
         super().__init__(connection)
+
+    def _run_report(self, report_name: str, **values: dict):
+        """
+        Runs a saved ActionKit report.
+        Returns the result.
+
+        For reference see:
+        https://action.wemove.eu/docs/manual/api/rest/reports.html
+        """
+        if not report_name:
+            raise ValueError('Report name must be provided')
+        return self.connection.post(
+            path.join(self.resource_name, report_name),
+            json=values,
+        )
 
     def _run_query(
         self, query: str = '', refresh=False, cache_duration=600, **values: dict
@@ -25,7 +42,7 @@ class SQL(HttpMethods):
         if not query:
             raise ValueError('Query must be provided')
         return self.connection.post(
-            self.resource_name,
+            path.join(self.resource_name, 'sql'),
             json=dict(
                 query=query,
                 refresh=refresh,
@@ -65,3 +82,21 @@ class SQL(HttpMethods):
                 )
             return results[0][0]
         return None
+
+    def fetch_signup_action_ids(self, page_id: int, user_id: int):
+        """
+        Fetches signup action ids by page_id and user_id.
+        """
+        query = """
+            SELECT id
+            FROM core_action
+            INNER JOIN core_signupaction ON core_signupaction.action_ptr_id = core_action.id
+            WHERE page_id = {{ page_id }} AND user_id = {{ user_id }}
+        """
+        return [
+            id
+            for row in self.run_query(
+                query, page_id=page_id, user_id=user_id, cache_duration=1
+            )
+            for id in row
+        ]
