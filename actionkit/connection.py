@@ -5,7 +5,9 @@ import time
 
 import requests
 
-resource_uri_id_regex = re.compile(r'/(?P<id>\d+)/$')
+from .validation import ValidationError
+
+resource_uri_id_regex = re.compile(r"/(?P<id>\d+)/$")
 
 
 class Connection:
@@ -36,8 +38,8 @@ class Connection:
 
         self.hostname = hostname
         self.request_kwargs = {
-            'headers': {'Accept': 'application/json'},
-            'auth': requests.auth.HTTPBasicAuth(username, password),
+            "headers": {"Accept": "application/json"},
+            "auth": requests.auth.HTTPBasicAuth(username, password),
         }
         self.logger = logger
 
@@ -47,7 +49,7 @@ class Connection:
         This method takes the response from ActionKit after a resource has been successfully
         created. It will get the resource_uri from the response headers, if present and return it.
         """
-        return response.headers.get('Location', None)
+        return response.headers.get("Location", None)
 
     @staticmethod
     def get_resource_uri_id(resource_uri):
@@ -56,7 +58,7 @@ class Connection:
         """
         match = resource_uri_id_regex.search(resource_uri)
         if match:
-            return match.group('id')
+            return match.group("id")
         return None
 
     @staticmethod
@@ -76,7 +78,7 @@ class Connection:
         This method takes an ActionKit resource_id and returns the resource_uri, based on the
         resource_name.
         """
-        return f'/rest/v1/{resource_name}/{resource_id}/'
+        return f"/rest/v1/{resource_name}/{resource_id}/"
 
     def _make_request(
         self, http_method: str, path: str, json=None, params=None, data=None, **kwargs
@@ -87,30 +89,30 @@ class Connection:
         _http_method = http_method.lower()
         request_fn = getattr(requests, _http_method, None)
         if request_fn is None:
-            raise NotImplementedError(f'HTTP method {_http_method} not supported')
+            raise NotImplementedError(f"HTTP method {_http_method} not supported")
 
         request_kwargs = {}
         request_kwargs.update(self.request_kwargs)
         request_kwargs.update(kwargs)
 
-        if _http_method == 'get':
+        if _http_method == "get":
             if json:
-                raise ValueError('Cannot use json with GET requests')
-            request_kwargs['params'] = params
+                raise ValueError("Cannot use json with GET requests")
+            request_kwargs["params"] = params
         else:
             if params:
-                raise ValueError('Cannot use params with non-GET requests')
+                raise ValueError("Cannot use params with non-GET requests")
             if data and json:
-                raise ValueError('Cannot use both data and json together in a request')
+                raise ValueError("Cannot use both data and json together in a request")
             if data:
-                request_kwargs['data'] = data
+                request_kwargs["data"] = data
             elif json:
-                request_kwargs['json'] = json
+                request_kwargs["json"] = json
 
         url = self._path(path)
 
-        self.logger.debug(f'Making {_http_method} request to {url}')
-        self.logger.debug(f'Request kwargs:\n{pprint.pformat(request_kwargs)}')
+        self.logger.debug(f"Making {_http_method} request to {url}")
+        self.logger.debug(f"Request kwargs:\n{pprint.pformat(request_kwargs)}")
 
         backoff = self.initial_backoff
         retries_left = self.num_retries
@@ -120,14 +122,14 @@ class Connection:
             try:
                 response = request_fn(url, **request_kwargs)
                 self.logger.debug(
-                    f'ActionKit Request headers:\n{pprint.pformat(response.request.headers)}'
+                    f"ActionKit Request headers:\n{pprint.pformat(response.request.headers)}"
                 )
                 if response.content:
-                    if response.headers.get('content-type') == "application/json":
+                    if response.headers.get("content-type") == "application/json":
                         content = pprint.pformat(response.json())
                     else:
                         content = response.text
-                    self.logger.debug(f'ActionKit Response body:\n{content}')
+                    self.logger.debug(f"ActionKit Response body:\n{content}")
                 response.raise_for_status()
                 break
             except requests.exceptions.HTTPError as e:
@@ -136,10 +138,11 @@ class Connection:
                     retries_left -= 1
                     backoff *= 2
                     continue
-                if hasattr(e.response, 'text') and e.response.text:
+                if hasattr(e.response, "text") and e.response.text:
                     self.logger.warning(
-                        f'Text from unsuccessful response: {e.response.text}'
+                        f"Text from unsuccessful response: {e.response.text}"
                     )
+                    raise ValidationError(e.response.text)
                 else:
                     self.logger.error(e)
                 raise
@@ -159,19 +162,19 @@ class Connection:
         return f"https://{self.hostname}" + f"/rest/v1/{path}".replace("//", "/")
 
     def get(self, path: str, *args, params: dict = None, **kwargs) -> dict:
-        return self._make_request('get', path, *args, params=params, **kwargs)
+        return self._make_request("get", path, *args, params=params, **kwargs)
 
     def post(self, path: str, json: dict = None, data: dict = None, **kwargs) -> str:
         """
         Issue a POST request with JSON and other params.
         """
-        return self._make_request('post', path, json=json, data=data, **kwargs)
+        return self._make_request("post", path, json=json, data=data, **kwargs)
 
     def patch(self, path: str, json: dict = None, data: dict = None, **kwargs) -> bool:
-        return self._make_request('patch', path, json=json, data=data, **kwargs)
+        return self._make_request("patch", path, json=json, data=data, **kwargs)
 
     def put(self, path: str, json: dict = None, data: dict = None, **kwargs) -> bool:
-        return self._make_request('put', path, json=json, data=data, **kwargs)
+        return self._make_request("put", path, json=json, data=data, **kwargs)
 
     def delete(self, path: str, *args, **kwargs) -> bool:
-        return self._make_request('delete', path, *args, **kwargs)
+        return self._make_request("delete", path, *args, **kwargs)

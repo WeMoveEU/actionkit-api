@@ -23,6 +23,7 @@ from .sql import SQL
 from .transactions import Transactions
 from .uploads import Uploads
 from .users import Users
+from .validation import ValidationError
 
 
 def connect(hostname=None, username=None, password=None, **kwargs):
@@ -43,7 +44,7 @@ def connect(hostname=None, username=None, password=None, **kwargs):
         hostname,
         username,
         password,
-        logger=kwargs.get('logger', logging.getLogger(__name__)),
+        logger=kwargs.get("logger", logging.getLogger(__name__)),
     )
 
 
