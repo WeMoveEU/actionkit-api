@@ -12,6 +12,14 @@ class SQL(HttpMethods):
         super().__init__(connection)
 
     def _run_report(self, report_name: str, **values: dict):
+        if not report_name:
+            raise ValueError('Report name must be provided')
+        return self.connection.post(
+            path.join(self.resource_name, report_name),
+            json=values,
+        )
+
+    def run_report(self, report_name: str, **values: dict):
         """
         Runs a saved ActionKit report.
         Returns the result.
@@ -19,12 +27,8 @@ class SQL(HttpMethods):
         For reference see:
         https://action.wemove.eu/docs/manual/api/rest/reports.html
         """
-        if not report_name:
-            raise ValueError('Report name must be provided')
-        return self.connection.post(
-            path.join(self.resource_name, report_name),
-            json=values,
-        )
+        response = self._run_report(report_name, **values)
+        return response.json()
 
     def _run_query(
         self, query: str = '', refresh=False, cache_duration=600, **values: dict
