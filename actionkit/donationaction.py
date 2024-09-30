@@ -23,7 +23,7 @@ class DonationAction(HttpMethods):
         page: str = None,
         payment_account: str = None,
         custom_action_fields: dict = {},
-        is_recurring: bool = False,
+        recurring_id: str = None,
         created_at: datetime = None,
         skip_confirmation: bool = False,
         akid: str = None,
@@ -31,7 +31,8 @@ class DonationAction(HttpMethods):
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
-        Set is_recurring to True to create a recurring payment profile
+        If recurring_id is set then the donation will be set to recurring and the recurring_id will
+        be set in ActionKit accordingly.
 
         https://action.wemove.eu/docs/manual/api/rest/donationpush.html
         """
@@ -89,11 +90,11 @@ class DonationAction(HttpMethods):
         if action:
             payload['action'] = action
 
-        if is_recurring:
+        if recurring_id:
             # https://action.wemove.eu/docs/manual/api/rest/donationpush.html#recurring-profiles
             payload['order'].update(
                 dict(
-                    recurring_id=str(uuid.uuid4()),
+                    recurring_id=recurring_id,
                     recurring_period='months',
                 )
             )
