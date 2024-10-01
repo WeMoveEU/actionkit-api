@@ -11,7 +11,6 @@ class ProfileUpdatePush(HttpMethods):
 
     def push(
         self,
-        order_id: str,
         amount: Decimal,
         currency: str,  # actionkit defaults to USD if currency is not provided
         trans_id: str = None,
@@ -21,10 +20,15 @@ class ProfileUpdatePush(HttpMethods):
         """
         https://action.wemove.eu/docs/manual/api/rest/donationpush.html#updates-to-existing-profiles
 
-        Updates an existing recurring payment profile connected to the given order_id
+        Updates an existing recurring payment profile connected to the given order_id or recurring_id
         """
+        order_id = kwargs.get('order_id', None)
+        recurring_id = kwargs.get('recurring_id', None)
+
+        if not (recurring_id or order_id):
+            raise ValueError('Either recurring_id or order_id must be provided')
+
         payload = dict(
-            order_id=order_id,
             amount=str(amount),
             currency=currency.upper(),
             trans_id=trans_id,
@@ -40,5 +44,7 @@ class ProfileUpdatePush(HttpMethods):
                 convert_datetime_to_utc(created_at)
             )
 
-        self.logger.debug(f'Updating recurring payment profile for order_id {order_id}')
+        self.logger.debug(
+            f'Updating recurring payment profile for id {order_id or recurring_id}'
+        )
         return self.post(payload)
