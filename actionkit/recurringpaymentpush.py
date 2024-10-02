@@ -10,7 +10,6 @@ class RecurringPaymentPush(HttpMethods):
 
     def push(
         self,
-        order_id,
         success=True,
         status='completed',
         failure_code=None,
@@ -25,8 +24,13 @@ class RecurringPaymentPush(HttpMethods):
 
         Registers a recurring payment connected to the given order_id
         """
+        order_id = kwargs.get('order_id', None)
+        recurring_id = kwargs.get('recurring_id', None)
+
+        if not (recurring_id or order_id):
+            raise ValueError('Either recurring_id or order_id must be provided')
+
         payload = dict(
-            order_id=order_id,
             success=success,
             status=status,
             failure_code=failure_code,
