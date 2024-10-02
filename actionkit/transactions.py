@@ -5,6 +5,7 @@ from requests import HTTPError
 
 from .httpmethods import HttpMethods
 from .orders import Orders
+from .validation import ValidationError
 
 TRANSACTION_TYPES = ['sale', 'refund', 'credit']
 
@@ -41,6 +42,16 @@ class Transactions(HttpMethods):
             elif e.response.status_code == 404:
                 self.connection.logger.warning(
                     f'Reversal not possible. Transaction {transaction_uri} was not found'
+                )
+            else:
+                raise e
+        except ValidationError as e:
+            # Since the underlying http code can now raise a ValidationError, we need to catch it
+            # here in case it's flagging an already reversed transaction
+            order_id_message = e.errors
+            if order_id_message == 'Transaction has already been reversed.':
+                self.connection.logger.warning(
+                    f'Transaction {transaction_id} already reversed'
                 )
             else:
                 raise e
