@@ -1,8 +1,7 @@
-from datetime import datetime, timezone
-
-import hashlib
 import base64
+import hashlib
 import os
+from datetime import datetime, timezone
 
 
 def convert_datetime_to_utc(dt: datetime) -> datetime:
@@ -27,13 +26,14 @@ def datetime_to_stripped_isoformat(dt: datetime) -> str:
     return tokens[0] if len(tokens) > 1 else iso_datetime
 
 
-def verify_hashed_value(hashed_value: str) -> str:
+def verify_hashed_value(hashed_value: str, actionkit_secret_key: str = None) -> str:
     # pop off the input hash
     chunks = hashed_value.split(".")
     input_hash = chunks.pop()
     cleartext = ".".join(chunks)
 
-    secret = os.environ.get("ACTIONKIT_SECRET_KEY")
+    secret = actionkit_secret_key or os.environ.get("ACTIONKIT_SECRET_KEY")
+
     if not secret:
         raise Exception("ACTIONKIT_SECRET_KEY must be defined.")
 
