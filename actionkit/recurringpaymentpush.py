@@ -40,7 +40,7 @@ class RecurringPaymentPush(HttpMethods):
             **kwargs,
         )
 
-        self.logger.debug(f'Pushing recurring payment for order_id {order_id}, recurring_id {recurring_id}: {payload}')
+        self.logger.warning(f'Pushing recurring payment for order_id {order_id}, recurring_id {recurring_id}: {payload}')
 
         # Validate and convert datetime as necessary
         if created_at:
