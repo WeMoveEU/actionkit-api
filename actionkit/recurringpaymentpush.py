@@ -28,7 +28,7 @@ class RecurringPaymentPush(HttpMethods):
         recurring_id = kwargs.get('recurring_id', None)
 
         if not (recurring_id or order_id):
-            raise ValueError('Either recurring_id or order_id must be provided')
+            raise ValueError('Either recurring_id or order_id must be provided.')
 
         payload = dict(
             success=success,
@@ -40,6 +40,8 @@ class RecurringPaymentPush(HttpMethods):
             **kwargs,
         )
 
+        self.logger.debug(f'Pushing recurring payment for order_id {order_id}, recurring_id {recurring_id}: {payload}')
+
         # Validate and convert datetime as necessary
         if created_at:
             validate_datetime_is_timezone_aware(created_at)
@@ -49,6 +51,5 @@ class RecurringPaymentPush(HttpMethods):
                 convert_datetime_to_utc(created_at)
             )
 
-        self.logger.debug(f'Pushing recurring payment for order_id {order_id}')
 
         return self.post(payload)
