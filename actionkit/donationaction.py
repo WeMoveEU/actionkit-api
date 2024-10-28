@@ -28,6 +28,7 @@ class DonationAction(HttpMethods):
         skip_confirmation: bool = False,
         akid: str = None,
         trans_id: str = None,
+        **kwargs  # just accept everything for now, we'll need to fix the calls later
     ):
         """
         Creates a new donationpush action in ActionKit and returns the requests.Response object
