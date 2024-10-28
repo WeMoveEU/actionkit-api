@@ -5,3 +5,4 @@ __pycache__
 actionkit.egg-info/
 build/
 dist/
+tags
