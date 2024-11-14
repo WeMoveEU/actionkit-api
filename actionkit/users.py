@@ -1,7 +1,7 @@
 import re
 
 from .httpmethods import HttpMethods
-
+from .utils import verify_hashed_value
 
 class Users(HttpMethods):
     resource_name = "user"
@@ -34,10 +34,16 @@ class Users(HttpMethods):
         Returns user info for a given akid.
         If limited is False, all of the user's data is returned
         """
-        match = re.match(r'^\.(?P<user_id>\d+)\..+$', akid)
-        if match:
-            user = self.get(self.uri(match.group('user_id')))
-            if limited:
-                return {k: user[k] for k in ['first_name', 'last_name', 'email']}
-            return user
-        raise ValueError(f"Invalid akid: {akid}")
+
+        try:
+
+            verify_hashed_value(akid)
+            chunks = akid.split(".")
+            if chunks:
+                user = self.get(self.uri(chunks[1]))
+                if limited:
+                    return {k: user[k] for k in ['first_name', 'last_name', 'email']}
+                return user
+
+        except Exception as e:
+            raise ValueError(f"Invalid akid: {akid}: {e}")
