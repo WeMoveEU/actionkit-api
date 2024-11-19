@@ -23,7 +23,7 @@ class Users(HttpMethods):
         return f"{self.resource_name}/{id or ''}"
 
     def id(self, uri):
-        m = re.search(f"/{self.resource_name}/(\d+)", uri)
+        m = re.search(f"/{self.resource_name}/(\\d+)", uri)
         if m:
             return m[1]
         else:
