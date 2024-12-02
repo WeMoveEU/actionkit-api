@@ -3,6 +3,7 @@ import re
 from .httpmethods import HttpMethods
 from .utils import verify_hashed_value
 
+
 class Users(HttpMethods):
     resource_name = "user"
 
@@ -29,7 +30,7 @@ class Users(HttpMethods):
         else:
             raise Exception(f"{uri} is not a user URI")
 
-    def get_by_akid(self, akid, limited=True):
+    def get_by_akid(self, akid, limited=True, actionkit_secret_key: str = None):
         """
         Returns user info for a given akid.
         If limited is False, all of the user's data is returned
@@ -37,7 +38,7 @@ class Users(HttpMethods):
 
         try:
 
-            verify_hashed_value(akid)
+            verify_hashed_value(akid, actionkit_secret_key)
             chunks = akid.split(".")
             if chunks:
                 user = self.get(self.uri(chunks[1]))
