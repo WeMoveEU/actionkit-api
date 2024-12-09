@@ -1,5 +1,5 @@
-from datetime import datetime
 import json
+from datetime import datetime
 
 
 def validate_datetime_is_timezone_aware(dt: datetime) -> None:
@@ -24,14 +24,13 @@ class ValidationError(Exception):
              }
          }
         """
-
         response = json.loads(response_text)
-        _resource, errors = response.popitem()
+        self.error_dict = response
 
-        self.errors = errors
+        self.errors = list(response.values())
 
     def __getitem__(self, field):
-        if field in self.errors:
-            return self.errors[field]
+        if field in self.error_dict:
+            return self.error_dict[field]
         else:
             return []
