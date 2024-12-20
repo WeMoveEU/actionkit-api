@@ -375,6 +375,8 @@ class DonationAction(HttpMethods):
         custom_action_fields: dict = None,
         trans_id: str = None,
         created_at: datetime = None,
+        # Ensure no changes are made if the status is already set to completed
+        no_action_if_status_is_already_set=True,
     ):
         """
         Wrapper to set_push_status that sets the donation, order, and transaction status for an
@@ -391,8 +393,7 @@ class DonationAction(HttpMethods):
             custom_action_fields,
             trans_id=trans_id,
             created_at=created_at,
-            # Ensure no changes are made if the status is already set to completed
-            no_action_if_status_is_already_set=True,
+            no_action_if_status_is_already_set=no_action_if_status_is_already_set,
         )
 
     def set_push_status_failed(
