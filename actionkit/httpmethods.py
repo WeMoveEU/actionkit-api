@@ -4,7 +4,7 @@ from requests import HTTPError
 
 
 def complete_path(fn):
-        def _wrapper(self, uri, *args, **kwargs):
+        def _wrapper(self, uri=None, *args, **kwargs):
             if uri is None:
                 return fn(self, uri, *args, **kwargs)
             resource_uri = str(uri)
@@ -32,7 +32,7 @@ class HttpMethods:
 
     def search(self, **params: dict) -> List[dict]:
         """
-        Returns a list of paged results from ActionKit for the resource self.resource_name
+        Returns a list of *all* paged results from ActionKit for the resource self.resource_name
         """
         try:
             resource = self.get(**params)
@@ -100,7 +100,6 @@ class HttpMethods:
         self.connection.put(resource_uri, *args, json=to_put, **kwargs)
         return True
 
-    @complete_path
     def post(self, *args, **kwargs):
         """
         Post a new payload for type self.resource_name to ActionKit, passing kwargs directly
