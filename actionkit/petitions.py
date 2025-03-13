@@ -20,7 +20,7 @@ class Petitions(HttpMethods):
         return (page_uri, cms_form_uri, followup_uri)
 
     def create_from_model(self, model, page, content, followup):
-        base_page = {k: model[k] for k in ["language", "goal", "goal_type", "recognize"]}
+        base_page = {k: model[k] for k in ["language", "goal", "goal_type", "recognize", "allow_multiple_responses"]}
         new_page = base_page | page
         new_page["fields"] = model["fields"] | page["fields"]
         new_page["groups"] = new_page.get("groups", []) + [g["resource_uri"] for g in model["groups"]]
