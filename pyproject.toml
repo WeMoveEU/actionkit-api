@@ -13,3 +13,8 @@ dependencies = [
     "requests-toolbelt"
 ]
 
+[dependency-groups]
+dev = [
+    "pytest>=7.0.1",
+]
+
