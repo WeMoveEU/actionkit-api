@@ -1,0 +1,14 @@
+# Github Actions file which runs on tagged releases, and calls
+# a reusable workflow file in python-build.yml (same directory)
+
+name: Release on Tag
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger the workflow on any tag push.
+  workflow_dispatch:
+
+jobs:
+  release:
+    uses: WemoveEU/ci-workflows/.github/workflows/python-build.yml@main

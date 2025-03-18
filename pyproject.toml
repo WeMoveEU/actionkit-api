@@ -1,0 +1,15 @@
+[project]
+name = "actionkit"
+version = "0.3.6"
+description = "ActionKit API python client"  # You can update this to be more descriptive
+readme = "README.md"  # Assuming you have a README file
+requires-python = ">=3.6"  # Specify the minimum Python version if applicable
+# license = {text = ""}  # Include your license information
+authors = [
+    {name = "Aaron Ross", email = "tech@wemove.eu"}
+]
+dependencies = [
+    "requests",
+    "requests-toolbelt"
+]
+
