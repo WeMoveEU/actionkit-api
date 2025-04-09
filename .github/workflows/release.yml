@@ -11,4 +11,4 @@ on:
 
 jobs:
   release:
-    uses: WemoveEU/ci-workflows/.github/workflows/python-build.yml@main
+    uses: WemoveEU/ci-workflows/.github/workflows/python-build.yml@v2
