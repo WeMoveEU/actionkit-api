@@ -23,6 +23,7 @@ from .sql import SQL
 from .transactions import Transactions
 from .uploads import Uploads
 from .users import Users
+from .userfields import UserFields
 from .validation import ValidationError
 
 
@@ -60,6 +61,7 @@ class ActionKit:
         self.Lists = Lists(self.connection)
         self.Uploads = Uploads(self.connection)
         self.Users = Users(self.connection)
+        self.UserFields = UserFields(self.connection)
         self.Campaigns = Campaigns(self.connection)
         self.MultilingualCampaigns = MultilingualCampaigns(self.connection)
         self.Petitions = Petitions(self.connection)
