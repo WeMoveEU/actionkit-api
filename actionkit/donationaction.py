@@ -38,9 +38,6 @@ class DonationAction(HttpMethods):
         https://action.wemove.eu/docs/manual/api/rest/donationpush.html
         """
         for required in [
-            'email',
-            'country',
-            'postal',
             'amount',
             'currency',
             'page',
@@ -48,6 +45,9 @@ class DonationAction(HttpMethods):
         ]:
             if not locals()[required]:
                 raise ValueError(f'{required} must be provided')
+
+        if not (email or akid):
+            raise ValueError('email or akid must be provided')
 
         order = dict(
             card_num='4111111111111111',
