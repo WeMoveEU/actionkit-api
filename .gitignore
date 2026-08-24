@@ -6,3 +6,6 @@ actionkit.egg-info/
 build/
 dist/
 tags
+
+.env
+

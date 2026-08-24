@@ -1,20 +1,27 @@
 [project]
 name = "actionkit"
-version = "0.3.8"
-description = "ActionKit API python client"  # You can update this to be more descriptive
-readme = "README.md"  # Assuming you have a README file
-requires-python = ">=3.6"  # Specify the minimum Python version if applicable
-# license = {text = ""}  # Include your license information
+version = "0.3.9"
+description = "ActionKit API python client"
+readme = "README.txt"
+requires-python = ">=3.11"
 authors = [
     {name = "Aaron Ross", email = "tech@wemove.eu"}
 ]
 dependencies = [
     "requests",
-    "requests-toolbelt"
+    # Sole use site: actionkit/uploads.py (MultipartEncoderMonitor, streaming
+    # multipart upload with a progress callback).
+    "requests-toolbelt",
 ]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["actionkit"]
 
 [dependency-groups]
 dev = [
     "pytest>=7.0.1",
 ]
-
