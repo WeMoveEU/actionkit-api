@@ -21,6 +21,13 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["actionkit"]
 
+[tool.python-pins]
+# requires-python is a compatibility range here, not a runtime pin: six repos
+# import this library from an unpinned git URL and they span 3.11 to 3.14, so no
+# single ==X.Y.* satisfies all of them. `library` opts out of the form rule only
+# -- the values still have to agree with each other.
+role = "library"
+
 [dependency-groups]
 dev = [
     "pytest>=7.0.1",
