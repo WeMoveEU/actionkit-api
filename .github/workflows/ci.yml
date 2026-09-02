@@ -1,8 +1,8 @@
-name: CI
+name: Pins & tests
 
-# This repo has no PR gate. The pins check is the whole job -- it is cheap, needs
-# no secrets, and stops the Dockerfile and the manifest drifting apart again.
-# Adding it does NOT make this repo tier 2: nothing here auto-merges.
+# This repo has no PR gate beyond what runs here: the pins check (cheap, no
+# secrets, stops the Dockerfile and the manifest drifting apart) and the
+# pytest suite. Neither auto-merges anything.
 
 on:
   pull_request:
@@ -11,8 +11,15 @@ permissions:
   contents: read
 
 jobs:
-  ci:
+  pins-and-tests:
+    name: Pins & tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: WeMoveEU/ci-workflows/.github/actions/python-pins@v14
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install uv
+      - run: uv sync --group dev
+      - run: uv run pytest
