@@ -57,24 +57,29 @@ def test_create_rejects_invalid_type(transactions):
         )
 
 
-def test_create_with_order_id_is_broken(transactions):
-    """
-    Pins a real bug, does not fix it: Transactions.create (transactions.py:97)
-    calls `Orders.get_resource_uri_from_id(order_id)` UNBOUND on the Orders
-    class rather than on an instance. HttpMethods.get_resource_uri_from_id is
-    `def get_resource_uri_from_id(self, resource_id)`, so this call binds
-    order_id to `self` and leaves the real `resource_id` parameter unfilled.
-    Transactions.create(order_id=...) (without order_uri) currently always
-    raises TypeError, never reaching the network. Contrast with the correct
-    `self.get_resource_uri_from_id(resource_id)` pattern in orders.py:23.
-    """
-    with pytest.raises(TypeError):
-        transactions.create(
-            account="WM-Card",
-            amount=Decimal("5.00"),
-            currency="EUR",
-            order_id="123",
-        )
+@responses.activate
+def test_create_with_order_id_sends_expected_payload(transactions):
+    responses.add(
+        responses.POST,
+        rest("transaction"),
+        status=201,
+        headers={"Location": rest("transaction/1/")},
+    )
+    result = transactions.create(
+        account="WM-Card",
+        amount=Decimal("5.00"),
+        currency="EUR",
+        order_id="123",
+    )
+    assert result == rest("transaction/1/")
+    body = json_module.loads(responses.calls[0].request.body)
+    assert body == {
+        "account": "WM-Card",
+        "amount": "5.00",
+        "currency": "EUR",
+        "type": "sale",
+        "order": "/rest/v1/order/123/",
+    }
 
 
 # --- reverse() ---------------------------------------------------------
