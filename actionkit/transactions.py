@@ -94,7 +94,9 @@ class Transactions(HttpMethods):
         if not type in TRANSACTION_TYPES:
             raise ValueError('Transaction type must be one of sale, refund, or credit')
 
-        order_uri = order_uri or Orders.get_resource_uri_from_id(order_id)
+        order_uri = order_uri or self.connection.get_resource_uri_from_id(
+            order_id, Orders.resource_name
+        )
 
         payload = dict(
             account=account,
