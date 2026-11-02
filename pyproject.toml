@@ -30,6 +30,6 @@ role = "library"
 
 [dependency-groups]
 dev = [
-    "pytest>=7.0.1",
+    "pytest>=9.2.0",
     "responses>=0.25",
 ]
